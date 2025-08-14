@@ -200,7 +200,7 @@ const Kanban = ({ columns, cards, visibleCardIds, onChange }) => {
             </SortableContext>
           </div>
           <button
-            className="flex cursor-pointer gap-2 self-start rounded-xl bg-stone-700 px-8 py-4 text-neutral-100 ring-rose-500 transition duration-150 hover:ring-2 focus:ring-2 active:scale-95"
+            className="flex cursor-pointer gap-2 self-start rounded-xl bg-stone-700 px-8 py-4 text-neutral-100 transition duration-150 hover:bg-yellow-400 hover:text-black focus:ring-2 active:scale-95"
             onClick={(e) => {
               createColumn();
               e.currentTarget.blur();

@@ -5,7 +5,7 @@ import { useState, useEffect, useRef } from "react";
 import EllipsisIcon from "../icons/EllipsisIcon";
 import { createPortal } from "react-dom";
 
-const Card = ({ card, deleteCard, editCard, containerRef }) => {
+const Card = ({ card, deleteCard, containerRef }) => {
   const {
     setNodeRef,
     attributes,
@@ -54,13 +54,13 @@ const Card = ({ card, deleteCard, editCard, containerRef }) => {
       : {};
   return isDragging ? (
     <div
-      className="h-20 w-full flex-shrink-0 rounded-md border-2 border-rose-500 p-2"
+      className="h-20 w-full flex-shrink-0 rounded-xl border-2 border-yellow-500 p-2"
       ref={setNodeRef}
       style={style}
     />
   ) : (
     <div
-      className="h-20 w-full flex-shrink-0 rounded-md bg-stone-400 p-2"
+      className="h-20 w-full flex-shrink-0 rounded-xl bg-stone-400 p-2"
       onMouseOver={() => setIsMouseOver(true)}
       onMouseLeave={() => setIsMouseOver(false)}
       ref={setNodeRef}
@@ -72,7 +72,7 @@ const Card = ({ card, deleteCard, editCard, containerRef }) => {
         <p>{card.title}</p>
         {isMouseOver && (
           <button
-            className="absolute top-0 right-0 rounded-md stroke-white p-1 hover:bg-stone-700"
+            className="absolute top-0 right-0 rounded-xl stroke-white p-1 hover:bg-stone-700"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
           >
             <EllipsisIcon />
@@ -82,11 +82,11 @@ const Card = ({ card, deleteCard, editCard, containerRef }) => {
           anchorRect &&
           createPortal(
             <div
-              className="absolute z-10 overflow-clip rounded-md bg-stone-700 shadow-lg transition-all duration-150"
+              className="absolute z-10 overflow-clip rounded-xl bg-stone-700 shadow-lg transition-all duration-150"
               style={menuStyle}
             >
               <button
-                className="w-full px-4 py-2 text-left hover:bg-stone-800"
+                className="w-full px-4 py-2 text-left text-neutral-100 hover:bg-stone-700"
                 onClick={() => {
                   deleteCard(card.id);
                   setIsMenuOpen(false);

@@ -62,7 +62,7 @@ const Column = ({
 
   return isDragging ? (
     <div
-      className="h-full w-64 rounded-md border-2 border-rose-500"
+      className="h-full w-64 rounded-xl border-2 border-yellow-500"
       ref={setNodeRef}
       style={style}
       {...attributes}
@@ -76,7 +76,7 @@ const Column = ({
       {...attributes}
       {...listeners}
     >
-      <div className="flex max-h-full min-h-0 flex-col gap-2 rounded-md bg-stone-300 p-2">
+      <div className="flex max-h-full min-h-0 flex-col gap-2 rounded-xl bg-stone-300 p-2">
         {/* header */}
         <div
           className="flex cursor-grab items-center justify-between p-2 text-base font-bold"
@@ -84,7 +84,7 @@ const Column = ({
         >
           <div className="flex flex-1 items-center gap-2">
             {/* chip for cards num in column */}
-            <div className="self-center rounded-full bg-stone-700 p-1 text-xs text-neutral-100">
+            <div className="self-center rounded-md bg-stone-700 px-2 py-1 text-xs text-neutral-100">
               {cards.length}
             </div>
             <div className="flex items-center overflow-x-clip">
@@ -93,7 +93,7 @@ const Column = ({
                   type="text"
                   value={column.title}
                   onChange={(e) => updateColumn(column.id, e.target.value)}
-                  className="w-full resize-none rounded-md border-rose-500 bg-stone-400 outline-none focus:border-2"
+                  className="w-full resize-none rounded-xl border-yellow-500 bg-stone-400 outline-none focus:border-2"
                   onBlur={() => setIsEditing(false)}
                   onKeyDown={(e) => {
                     if (e.key === "Enter") {
@@ -109,7 +109,7 @@ const Column = ({
             </div>
           </div>
           <button
-            className="rounded-md stroke-gray-500 p-1 transition duration-150 hover:bg-stone-800 hover:stroke-white"
+            className="rounded-xl stroke-gray-500 p-1 transition duration-150 hover:bg-stone-800 hover:stroke-white"
             onClick={() => {
               deleteColumn(column.id);
             }}
@@ -140,13 +140,13 @@ const Column = ({
             placeholder="Do something..."
             value={cardContent}
             onChange={(e) => setCardContent(e.target.value)}
-            className="h-32 w-full resize-none rounded-md border-none bg-stone-400 p-2"
+            className="h-32 w-full resize-none rounded-xl border-none bg-stone-400 p-2"
             wrap="soft"
           />
         </div>
         <div className="flex items-center justify-center gap-2">
           <button
-            className="flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-lg bg-stone-700 p-1 text-neutral-100 ring-rose-500 transition duration-150 hover:ring-2 focus:ring-2 active:scale-95"
+            className="flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-xl p-1 transition duration-150 hover:bg-yellow-400 focus:bg-yellow-500 active:scale-95"
             onClick={(e) => {
               createCard(column.id);
               e.currentTarget.blur();
@@ -157,7 +157,7 @@ const Column = ({
           </button>
           {isAddingCard && (
             <button
-              className="flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-lg stroke-stone-700 p-1 transition duration-150 hover:bg-stone-400 hover:stroke-white active:scale-95"
+              className="flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-xl stroke-stone-700 p-1 transition duration-150 hover:bg-stone-400 hover:stroke-white active:scale-95"
               onClick={() => setIsAddingCard(false)}
             >
               <CloseIcon />
