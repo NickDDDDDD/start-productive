@@ -1,6 +1,5 @@
 import { nanoid } from "nanoid";
 import PlusIcon from "../icons/PlusIcon";
-import { loadState, saveState, subscribeState } from "../../utils/storage";
 import { useMemo, useState, useRef, useEffect } from "react";
 import {
   DndContext,
@@ -15,20 +14,16 @@ import Column from "./Column";
 import Card from "./Card";
 import { twMerge } from "tailwind-merge";
 
-const Kanban = () => {
-  const [columns, setColumns] = useState([]);
+const Kanban = ({ columns, cards, visibleCardIds, onChange }) => {
   const columnsIds = useMemo(
     () => columns.map((column) => column.id),
     [columns],
   );
-  const [cards, setCards] = useState([]);
   const [activeColumn, setActiveColumn] = useState(null);
   const [activeCard, setActiveCard] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
-  const [hydrated, setHydrated] = useState(false);
 
   const containerRef = useRef(null);
-  const saveTimerRef = useRef(null);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 15 } }),
@@ -40,22 +35,21 @@ const Kanban = () => {
     }),
   );
 
-  useEffect(() => {
-    let mounted = true;
-    (async () => {
-      const s = await loadState();
-      if (!mounted) return;
-      setColumns(s.columns || []);
-      setCards(s.cards || []);
-      setHydrated(true);
-    })();
-    return () => {
-      mounted = false;
-    };
-  }, []);
+  const visibleCards = useMemo(() => {
+    if (!visibleCardIds) return cards;
+    return cards.filter((c) => visibleCardIds.has(c.id));
+  }, [cards, visibleCardIds]);
+
+  const setColumns = (updater) => {
+    const nextCols = typeof updater === "function" ? updater(columns) : updater;
+    onChange?.({ columns: nextCols, cards });
+  };
+  const setCards = (updater) => {
+    const nextCards = typeof updater === "function" ? updater(cards) : updater;
+    onChange?.({ columns, cards: nextCards });
+  };
 
   useEffect(() => {
-    //TODO: FIX THIS LATER
     if (isDragging) {
       console.log("Dragging");
       const originalStyle = window.getComputedStyle(document.body).overflow;
@@ -67,25 +61,6 @@ const Kanban = () => {
       };
     }
   }, [isDragging]);
-
-  useEffect(() => {
-    if (!hydrated) return;
-    if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
-    saveTimerRef.current = setTimeout(() => {
-      saveState({ columns, cards });
-    }, 200);
-    return () => clearTimeout(saveTimerRef.current);
-  }, [columns, cards, hydrated]);
-
-  useEffect(() => {
-    if (!hydrated) return;
-    const unsubscribe = subscribeState((newState) => {
-      if (!newState) return;
-      setColumns(newState.columns || []);
-      setCards(newState.cards || []);
-    });
-    return unsubscribe;
-  }, [hydrated]);
 
   function createColumn() {
     setColumns((prev) => [
@@ -215,7 +190,9 @@ const Kanban = () => {
                   column={column}
                   deleteColumn={deleteColumn}
                   updateColumn={updateColumn}
-                  cards={cards.filter((card) => card.columnId === column.id)}
+                  cards={visibleCards.filter(
+                    (card) => card.columnId === column.id,
+                  )}
                   setCards={setCards}
                   containerRef={containerRef}
                 />
@@ -240,7 +217,9 @@ const Kanban = () => {
               column={activeColumn}
               deleteColumn={deleteColumn}
               updateColumn={updateColumn}
-              cards={cards.filter((card) => card.columnId === activeColumn.id)}
+              cards={visibleCards.filter(
+                (card) => card.columnId === activeColumn.id,
+              )}
               setCards={setCards}
               containerRef={containerRef}
             />
