@@ -17,13 +17,13 @@ const SearchBar = ({ onSearch }) => {
   };
 
   return (
-    <div className="p-4 pb-0">
+    <div>
       <input
         type="text"
-        placeholder="Search..."
+        placeholder="Search cards..."
         value={query}
         onChange={handleQueryChange}
-        className="w-full rounded-full border border-stone-400 px-4 py-2"
+        className="w-full rounded-full border-2 border-stone-200 px-4 py-2 outline-none focus:border-yellow-500"
       />
     </div>
   );

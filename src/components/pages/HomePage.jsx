@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import Kanban from "../kanban/Kanban";
+import TaskManager from "../kanban/TaskManager";
 import LinkCard from "../links/LinkCard";
 import { FcGoogle } from "react-icons/fc";
 import { RiCharacterRecognitionFill } from "react-icons/ri";
@@ -18,12 +18,6 @@ const HomePage = () => {
       url: "https://material.aceoffer.cn/recruit",
       Icon: RiCharacterRecognitionFill,
       color: "text-red-600",
-    },
-    {
-      name: "Portfolio",
-      url: "https://portfolio.nixkode.com",
-      Icon: BiBoltCircle,
-      color: "text-yellow-400",
     },
   ];
 
@@ -47,11 +41,20 @@ const HomePage = () => {
   }, [cards, searchTerm]);
 
   return (
-    <div className="grid h-dvh w-full grid-cols-24 grid-rows-[auto_1fr] bg-stone-100">
-      <div className="col-span-24 row-start-1 row-end-2">
+    <div className="grid h-dvh w-full grid-cols-24 grid-rows-[auto_1fr] gap-4 bg-stone-100 p-4">
+      <a
+        href="https://portfolio.nixkode.com"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="col-span-2 flex items-center justify-center rounded-xl p-1 transition-colors hover:bg-stone-200"
+      >
+        <BiBoltCircle className="h-full w-auto text-yellow-400" />
+        <span className="ml-2 text-sm font-bold">Nixkode</span>
+      </a>
+      <div className="col-span-22">
         <Search onSearch={onSearch} />
       </div>
-      <div className="col-span-2 flex h-full min-w-24 flex-col gap-4 p-4 pr-0">
+      <div className="col-span-2 flex h-full min-w-24 flex-col gap-4">
         {links.map((link) => (
           <LinkCard
             name={link.name}
@@ -62,15 +65,13 @@ const HomePage = () => {
           />
         ))}
       </div>
-      <div className="col-span-22 h-full min-h-0 p-4">
-        <Kanban
+      <div className="col-span-22 h-full min-h-0">
+        <TaskManager
           columns={columns}
           cards={cards}
           visibleCardIds={visibleCardIds}
-          onChange={({ columns: nextCols, cards: nextCards }) => {
-            setColumns(nextCols);
-            setCards(nextCards);
-          }}
+          setColumns={setColumns}
+          setCards={setCards}
         />
       </div>
     </div>

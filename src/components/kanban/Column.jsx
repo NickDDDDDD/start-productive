@@ -93,7 +93,7 @@ const Column = ({
                   type="text"
                   value={column.title}
                   onChange={(e) => updateColumn(column.id, e.target.value)}
-                  className="w-full resize-none rounded-xl border-yellow-500 bg-stone-400 outline-none focus:border-2"
+                  className="w-full resize-none rounded-full border-yellow-500 bg-stone-400 px-2 py-1 outline-none focus:border-2"
                   onBlur={() => setIsEditing(false)}
                   onKeyDown={(e) => {
                     if (e.key === "Enter") {
@@ -110,7 +110,8 @@ const Column = ({
           </div>
           <button
             className="rounded-xl stroke-gray-500 p-1 transition duration-150 hover:bg-stone-800 hover:stroke-white"
-            onClick={() => {
+            onClick={(e) => {
+              e.stopPropagation();
               deleteColumn(column.id);
             }}
           >
@@ -140,7 +141,7 @@ const Column = ({
             placeholder="Do something..."
             value={cardContent}
             onChange={(e) => setCardContent(e.target.value)}
-            className="h-32 w-full resize-none rounded-xl border-none bg-stone-400 p-2"
+            className="h-32 w-full resize-none rounded-xl border-none bg-stone-400 p-2 outline-none"
             wrap="soft"
           />
         </div>

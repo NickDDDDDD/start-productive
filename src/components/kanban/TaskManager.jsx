@@ -13,8 +13,15 @@ import { arrayMove, SortableContext } from "@dnd-kit/sortable";
 import Column from "./Column";
 import Card from "./Card";
 import { twMerge } from "tailwind-merge";
+import Inbox from "./Inbox";
 
-const Kanban = ({ columns, cards, visibleCardIds, onChange }) => {
+const TaskManager = ({
+  columns,
+  cards,
+  visibleCardIds,
+  setColumns,
+  setCards,
+}) => {
   const columnsIds = useMemo(
     () => columns.map((column) => column.id),
     [columns],
@@ -30,6 +37,7 @@ const Kanban = ({ columns, cards, visibleCardIds, onChange }) => {
     useSensor(TouchSensor, {
       activationConstraint: {
         delay: 250,
+
         tolerance: 5,
       },
     }),
@@ -39,15 +47,6 @@ const Kanban = ({ columns, cards, visibleCardIds, onChange }) => {
     if (!visibleCardIds) return cards;
     return cards.filter((c) => visibleCardIds.has(c.id));
   }, [cards, visibleCardIds]);
-
-  const setColumns = (updater) => {
-    const nextCols = typeof updater === "function" ? updater(columns) : updater;
-    onChange?.({ columns: nextCols, cards });
-  };
-  const setCards = (updater) => {
-    const nextCards = typeof updater === "function" ? updater(cards) : updater;
-    onChange?.({ columns, cards: nextCards });
-  };
 
   useEffect(() => {
     if (isDragging) {
@@ -70,12 +69,15 @@ const Kanban = ({ columns, cards, visibleCardIds, onChange }) => {
   }
 
   function deleteColumn(id) {
-    setColumns((prev) => prev.filter((c) => c.id !== id));
+    console.log(`Deleting column with id: ${id}`);
+    setColumns((prev) => prev.filter((column) => column.id !== id));
     setCards((prev) => prev.filter((card) => card.columnId !== id));
   }
 
   function updateColumn(id, title) {
-    setColumns((prev) => prev.map((c) => (c.id === id ? { ...c, title } : c)));
+    setColumns((prev) =>
+      prev.map((column) => (column.id === id ? { ...column, title } : column)),
+    );
   }
 
   function handleDragStart({ active }) {
@@ -165,7 +167,7 @@ const Kanban = ({ columns, cards, visibleCardIds, onChange }) => {
   }
 
   return (
-    <div className="flex h-full w-full overflow-x-auto rounded-xl bg-stone-200 p-4 shadow-lg">
+    <div className="flex h-full w-full">
       <DndContext
         sensors={sensors}
         onDragStart={handleDragStart}
@@ -173,42 +175,52 @@ const Kanban = ({ columns, cards, visibleCardIds, onChange }) => {
         onDragEnd={handleDragEnd}
         onDragCancel={handleDragCancel}
       >
-        {/* kanban area */}
         <div
           className={twMerge(
-            "relative mx-auto flex h-full items-start justify-start gap-4",
+            "relative grid h-full w-full grid-cols-24 gap-4",
             isDragging ? "touch-none" : "",
           )}
           ref={containerRef}
         >
-          {/* columns */}
-          <div className="flex h-full items-start justify-start gap-4">
-            <SortableContext items={columnsIds}>
-              {columns.map((column) => (
-                <Column
-                  key={column.id}
-                  column={column}
-                  deleteColumn={deleteColumn}
-                  updateColumn={updateColumn}
-                  cards={visibleCards.filter(
-                    (card) => card.columnId === column.id,
-                  )}
-                  setCards={setCards}
-                  containerRef={containerRef}
-                />
-              ))}
-            </SortableContext>
+          <div className="col-span-4 h-full min-h-0">
+            <Inbox
+              cards={visibleCards.filter((c) => c.columnId === "inbox")}
+              setCards={setCards}
+              containerRef={containerRef}
+            />
           </div>
-          <button
-            className="flex cursor-pointer gap-2 self-start rounded-xl bg-stone-700 px-8 py-4 text-neutral-100 transition duration-150 hover:bg-yellow-400 hover:text-black focus:ring-2 active:scale-95"
-            onClick={(e) => {
-              createColumn();
-              e.currentTarget.blur();
-            }}
-          >
-            <PlusIcon />
-            Add Column
-          </button>
+          {/* kanban area */}
+          <div className="col-span-20 flex h-full items-start justify-start gap-4 overflow-x-auto rounded-xl bg-stone-200 p-4">
+            <div className="mx-auto flex h-full gap-4">
+              <div className="flex h-full items-start justify-start gap-4">
+                <SortableContext items={columnsIds}>
+                  {columns.map((column) => (
+                    <Column
+                      key={column.id}
+                      column={column}
+                      deleteColumn={deleteColumn}
+                      updateColumn={updateColumn}
+                      cards={visibleCards.filter(
+                        (card) => card.columnId === column.id,
+                      )}
+                      setCards={setCards}
+                      containerRef={containerRef}
+                    />
+                  ))}
+                </SortableContext>
+              </div>
+              <button
+                className="flex cursor-pointer items-center justify-center gap-2 self-start rounded-xl bg-yellow-500 px-6 py-2 transition duration-150 hover:bg-yellow-400 hover:text-black focus:ring-2 active:scale-95"
+                onClick={(e) => {
+                  createColumn();
+                  e.currentTarget.blur();
+                }}
+              >
+                <PlusIcon />
+                Add Column
+              </button>
+            </div>
+          </div>
         </div>
         <DragOverlay>
           {activeColumn && (
@@ -231,4 +243,4 @@ const Kanban = ({ columns, cards, visibleCardIds, onChange }) => {
   );
 };
 
-export default Kanban;
+export default TaskManager;
