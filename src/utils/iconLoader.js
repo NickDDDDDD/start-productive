@@ -2,6 +2,7 @@ const PACK_IMPORTERS = {
   ai: () => import("react-icons/ai"),
   lu: () => import("react-icons/lu"),
   fa: () => import("react-icons/fa"),
+  fa6: () => import("react-icons/fa6"),
   fi: () => import("react-icons/fi"),
   fc: () => import("react-icons/fc"),
   hi: () => import("react-icons/hi"),
