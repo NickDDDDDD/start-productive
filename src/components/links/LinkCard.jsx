@@ -38,7 +38,9 @@ const LinkCard = ({
       className="relative flex aspect-square w-full items-center justify-center rounded-xl bg-stone-200 p-4 shadow-xl transition-colors hover:bg-stone-300"
     >
       {err && <span className="text-xs text-red-500">!</span>}
-      {!err && Icon && <Icon className={twMerge("h-full w-full", color)} />}
+      {!err && Icon && (
+        <Icon className={twMerge("h-full w-full")} style={{ color }} />
+      )}
       {isEdit && (
         <button
           onClick={(e) => {
