@@ -1,1 +1,14 @@
 @import "tailwindcss";
+
+@layer base {
+  button {
+    @apply flex cursor-pointer items-center justify-center transition-all duration-100 ease-in-out active:scale-95;
+  }
+
+  input {
+    @apply w-full resize-none rounded-full border-yellow-500 bg-stone-200 px-2 py-1 outline-none focus:border-2;
+  }
+  textarea {
+    @apply w-full resize-none rounded-xl border-none bg-stone-200 p-2 outline-none;
+  }
+}

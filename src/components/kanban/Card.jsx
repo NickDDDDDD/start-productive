@@ -2,7 +2,7 @@ import { useSortable } from "@dnd-kit/sortable";
 import PropTypes from "prop-types";
 import { CSS } from "@dnd-kit/utilities";
 import { useState, useEffect, useRef } from "react";
-import EllipsisIcon from "../icons/EllipsisIcon";
+import { BsThreeDots } from "react-icons/bs";
 import { createPortal } from "react-dom";
 
 const Card = ({ card, deleteCard, containerRef }) => {
@@ -75,7 +75,7 @@ const Card = ({ card, deleteCard, containerRef }) => {
             className="absolute top-0 right-0 rounded-xl stroke-white p-1 hover:bg-stone-700"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
           >
-            <EllipsisIcon />
+            <BsThreeDots className="text-stone-900 hover:text-stone-200" />
           </button>
         )}
         {isMenuOpen &&

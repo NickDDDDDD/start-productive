@@ -1,8 +1,9 @@
 import { useState, useRef } from "react";
+import { FaSearch } from "react-icons/fa";
 
 const SearchBar = ({ onSearch }) => {
   const [query, setQuery] = useState("");
-  const debounceRef = useRef(null); // 存放定时器 ID
+  const debounceRef = useRef(null);
 
   const handleQueryChange = (e) => {
     const value = e.target.value;
@@ -20,10 +21,10 @@ const SearchBar = ({ onSearch }) => {
     <div>
       <input
         type="text"
-        placeholder="Search cards..."
+        placeholder="🔍  Search cards"
         value={query}
         onChange={handleQueryChange}
-        className="w-full rounded-full border-2 border-stone-200 px-4 py-2 outline-none focus:border-yellow-500"
+        className="w-full rounded-full border-2 border-stone-200 bg-stone-100 px-4 py-2 focus:border-yellow-500"
       />
     </div>
   );

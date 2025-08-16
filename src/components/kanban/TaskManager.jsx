@@ -1,5 +1,5 @@
 import { nanoid } from "nanoid";
-import PlusIcon from "../icons/PlusIcon";
+import { FaPlus } from "react-icons/fa6";
 import { useMemo, useState, useRef, useEffect } from "react";
 import {
   DndContext,
@@ -216,7 +216,7 @@ const TaskManager = ({
                   e.currentTarget.blur();
                 }}
               >
-                <PlusIcon />
+                <FaPlus />
                 Add Column
               </button>
             </div>

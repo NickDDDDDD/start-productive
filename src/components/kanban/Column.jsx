@@ -1,12 +1,12 @@
-import TrashIcon from "../icons/TrashIcon";
+import { FaTrashCan } from "react-icons/fa6";
 import { SortableContext, useSortable } from "@dnd-kit/sortable";
 import { useMemo, useState } from "react";
 import PropTypes from "prop-types";
 import Card from "./Card";
 import { CSS } from "@dnd-kit/utilities";
-import PlusIcon from "../icons/PlusIcon";
 import { nanoid } from "nanoid";
-import CloseIcon from "../icons/CloseIcon";
+import { FaXmark } from "react-icons/fa6";
+import { FaPlus } from "react-icons/fa6";
 
 const Column = ({
   column,
@@ -93,7 +93,7 @@ const Column = ({
                   type="text"
                   value={column.title}
                   onChange={(e) => updateColumn(column.id, e.target.value)}
-                  className="w-full resize-none rounded-full border-yellow-500 bg-stone-400 px-2 py-1 outline-none focus:border-2"
+                  className="rounded-full border-yellow-500 px-2 py-1 focus:border-2"
                   onBlur={() => setIsEditing(false)}
                   onKeyDown={(e) => {
                     if (e.key === "Enter") {
@@ -115,7 +115,7 @@ const Column = ({
               deleteColumn(column.id);
             }}
           >
-            <TrashIcon className="size-5" />
+            <FaTrashCan className="size-5 text-stone-400 hover:text-stone-200" />
           </button>
         </div>
         {/* cards container */}
@@ -141,7 +141,7 @@ const Column = ({
             placeholder="Do something..."
             value={cardContent}
             onChange={(e) => setCardContent(e.target.value)}
-            className="h-32 w-full resize-none rounded-xl border-none bg-stone-400 p-2 outline-none"
+            className="h-32 w-full resize-none rounded-xl border-none bg-stone-200 p-2 outline-none"
             wrap="soft"
           />
         </div>
@@ -153,7 +153,7 @@ const Column = ({
               e.currentTarget.blur();
             }}
           >
-            {!isAddingCard && <PlusIcon />}
+            {!isAddingCard && <FaPlus />}
             {isAddingCard ? "Confirm" : "Add Card"}
           </button>
           {isAddingCard && (
@@ -161,7 +161,7 @@ const Column = ({
               className="flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-xl stroke-stone-700 p-1 transition duration-150 hover:bg-stone-400 hover:stroke-white active:scale-95"
               onClick={() => setIsAddingCard(false)}
             >
-              <CloseIcon />
+              <FaXmark />
             </button>
           )}
         </div>

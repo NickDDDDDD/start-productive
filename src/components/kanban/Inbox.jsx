@@ -3,8 +3,9 @@ import { SortableContext, useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { useMemo, useState } from "react";
 import Card from "./Card";
-import PlusIcon from "../icons/PlusIcon";
-import CloseIcon from "../icons/CloseIcon";
+import { FaXmark } from "react-icons/fa6";
+import { FaPlus } from "react-icons/fa6";
+
 import { nanoid } from "nanoid";
 
 const Inbox = ({ cards, setCards, containerRef }) => {
@@ -85,7 +86,7 @@ const Inbox = ({ cards, setCards, containerRef }) => {
               e.currentTarget.blur();
             }}
           >
-            {!isAddingCard && <PlusIcon />}
+            {!isAddingCard && <FaPlus />}
             {isAddingCard ? "Confirm" : "Add Card"}
           </button>
           {isAddingCard && (
@@ -93,7 +94,7 @@ const Inbox = ({ cards, setCards, containerRef }) => {
               className="flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-xl stroke-stone-700 p-1 transition duration-150 hover:bg-stone-400 hover:stroke-white active:scale-95"
               onClick={() => setIsAddingCard(false)}
             >
-              <CloseIcon />
+              <FaXmark />
             </button>
           )}
         </div>

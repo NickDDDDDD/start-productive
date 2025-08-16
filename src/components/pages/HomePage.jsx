@@ -1,25 +1,14 @@
 import { useMemo, useState } from "react";
 import TaskManager from "../kanban/TaskManager";
-import LinkCard from "../links/LinkCard";
-import { FcGoogle } from "react-icons/fc";
-import { RiCharacterRecognitionFill } from "react-icons/ri";
 import { BiBoltCircle } from "react-icons/bi";
 import Search from "../search/SearchBar";
 import useKanbanState from "../../hooks/useKanbanState";
+import LinkManager from "../links/LinkManager";
 
 const HomePage = () => {
-  const { columns, setColumns, cards, setCards } = useKanbanState();
+  const { columns, setColumns, cards, setCards, links, setLinks } =
+    useKanbanState();
   const [searchTerm, setSearchTerm] = useState("");
-
-  const links = [
-    { name: "Google", url: "https://www.google.com", Icon: FcGoogle },
-    {
-      name: "Ace",
-      url: "https://material.aceoffer.cn/recruit",
-      Icon: RiCharacterRecognitionFill,
-      color: "text-red-600",
-    },
-  ];
 
   const onSearch = (query) => {
     setSearchTerm(query);
@@ -41,7 +30,7 @@ const HomePage = () => {
   }, [cards, searchTerm]);
 
   return (
-    <div className="grid h-dvh w-full grid-cols-24 grid-rows-[auto_1fr] gap-4 bg-stone-100 p-4">
+    <div className="grid h-dvh w-full grid-cols-24 grid-rows-[auto_1fr] gap-4 bg-stone-100 p-4 text-base">
       <a
         href="https://portfolio.nixkode.com"
         target="_blank"
@@ -54,16 +43,8 @@ const HomePage = () => {
       <div className="col-span-22">
         <Search onSearch={onSearch} />
       </div>
-      <div className="col-span-2 flex h-full min-w-24 flex-col gap-4">
-        {links.map((link) => (
-          <LinkCard
-            name={link.name}
-            url={link.url}
-            key={link.name}
-            Icon={link.Icon}
-            color={link.color}
-          />
-        ))}
+      <div className="col-span-2 h-full min-w-24">
+        <LinkManager links={links} setLinks={setLinks} />
       </div>
       <div className="col-span-22 h-full min-h-0">
         <TaskManager
