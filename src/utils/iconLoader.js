@@ -9,6 +9,7 @@ const PACK_IMPORTERS = {
   io: () => import("react-icons/io"),
   md: () => import("react-icons/md"),
   ri: () => import("react-icons/ri"),
+  si: () => import("react-icons/si"),
 };
 
 export async function loadIconById(iconId) {

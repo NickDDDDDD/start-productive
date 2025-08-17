@@ -147,7 +147,7 @@ const Column = ({
         </div>
         <div className="flex items-center justify-center gap-2">
           <button
-            className="flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-xl p-1 transition duration-150 hover:bg-yellow-400 focus:bg-yellow-500 active:scale-95"
+            className="flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-full px-4 py-2 transition duration-150 hover:bg-yellow-400 focus:bg-yellow-500 active:scale-95"
             onClick={(e) => {
               createCard(column.id);
               e.currentTarget.blur();

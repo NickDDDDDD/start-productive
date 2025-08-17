@@ -4,6 +4,7 @@ import { BiBoltCircle } from "react-icons/bi";
 import Search from "../search/SearchBar";
 import useKanbanState from "../../hooks/useKanbanState";
 import LinkManager from "../links/LinkManager";
+import TaskGenerator from "../TaskGenerator";
 
 const HomePage = () => {
   const { columns, setColumns, cards, setCards, links, setLinks } =
@@ -40,13 +41,19 @@ const HomePage = () => {
         <BiBoltCircle className="h-full w-auto text-yellow-400" />
         <span className="ml-2 text-sm font-bold">Nixkode</span>
       </a>
+      {/*search bar */}
       <div className="col-span-22">
         <Search onSearch={onSearch} />
       </div>
-      <div className="col-span-2 h-full min-w-24">
+      {/* links manager */}
+      <div className="col-span-2 h-full min-h-0">
         <LinkManager links={links} setLinks={setLinks} />
       </div>
-      <div className="col-span-22 h-full min-h-0">
+      <div className="col-span-4 h-full">
+        <TaskGenerator />
+      </div>
+      {/* Task Manager */}
+      <div className="col-span-18 h-full min-h-0">
         <TaskManager
           columns={columns}
           cards={cards}

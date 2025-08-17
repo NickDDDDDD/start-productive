@@ -54,7 +54,7 @@ const Inbox = ({ cards, setCards, containerRef }) => {
       {...attributes}
       {...listeners}
     >
-      <div className="flex h-full max-h-full min-h-0 flex-col gap-2 rounded-xl bg-stone-200 p-2">
+      <div className="flex h-full max-h-full min-h-0 flex-col gap-2 rounded-xl bg-stone-200 p-4">
         {/* header */}
         <div className="flex items-center justify-between p-2 text-base font-bold">
           <div className="flex flex-1 items-center gap-2">
@@ -80,7 +80,7 @@ const Inbox = ({ cards, setCards, containerRef }) => {
         </div>
         <div className="flex items-center justify-center gap-2">
           <button
-            className="flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-xl bg-yellow-500 p-2 transition duration-150 hover:bg-yellow-400 focus:bg-yellow-500 active:scale-95"
+            className="flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-full bg-yellow-400 p-2 shadow-sm transition duration-150 hover:bg-yellow-300 focus:bg-yellow-500 active:scale-95"
             onClick={(e) => {
               createCard();
               e.currentTarget.blur();

@@ -177,7 +177,7 @@ const TaskManager = ({
       >
         <div
           className={twMerge(
-            "relative grid h-full w-full grid-cols-24 gap-4",
+            "relative grid h-full w-full grid-cols-18 gap-4",
             isDragging ? "touch-none" : "",
           )}
           ref={containerRef}
@@ -190,7 +190,7 @@ const TaskManager = ({
             />
           </div>
           {/* kanban area */}
-          <div className="col-span-20 flex h-full items-start justify-start gap-4 overflow-x-auto rounded-xl bg-stone-200 p-4">
+          <div className="col-span-14 flex h-full items-start justify-start gap-4 overflow-x-auto rounded-xl bg-stone-200 p-4">
             <div className="mx-auto flex h-full gap-4">
               <div className="flex h-full items-start justify-start gap-4">
                 <SortableContext items={columnsIds}>
@@ -210,7 +210,7 @@ const TaskManager = ({
                 </SortableContext>
               </div>
               <button
-                className="flex cursor-pointer items-center justify-center gap-2 self-start rounded-xl bg-yellow-500 px-6 py-2 transition duration-150 hover:bg-yellow-400 hover:text-black focus:ring-2 active:scale-95"
+                className="flex cursor-pointer items-center justify-center gap-2 self-start rounded-full bg-yellow-400 px-6 py-2 shadow-sm transition duration-150 hover:bg-yellow-300 hover:text-black focus:ring-2 active:scale-95"
                 onClick={(e) => {
                   createColumn();
                   e.currentTarget.blur();
