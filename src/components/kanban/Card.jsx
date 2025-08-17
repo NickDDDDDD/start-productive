@@ -1,5 +1,4 @@
 import { useSortable } from "@dnd-kit/sortable";
-import PropTypes from "prop-types";
 import { CSS } from "@dnd-kit/utilities";
 import { useState, useEffect, useRef } from "react";
 import { BsThreeDots } from "react-icons/bs";
@@ -47,8 +46,8 @@ const Card = ({ card, deleteCard, containerRef }) => {
   const menuStyle =
     anchorRect && isMenuOpen
       ? {
-          top: anchorRect.bottom,
-          left: anchorRect.right,
+          top: anchorRect.top,
+          left: anchorRect.right + 10,
           maxHeight: isMenuOpen ? "400px" : "0px",
         }
       : {};
@@ -60,7 +59,7 @@ const Card = ({ card, deleteCard, containerRef }) => {
     />
   ) : (
     <div
-      className="h-20 w-full flex-shrink-0 rounded-xl bg-stone-400 p-2"
+      className="h-24 w-full flex-shrink-0 rounded-xl bg-stone-400 p-2"
       onMouseOver={() => setIsMouseOver(true)}
       onMouseLeave={() => setIsMouseOver(false)}
       ref={setNodeRef}
@@ -68,8 +67,11 @@ const Card = ({ card, deleteCard, containerRef }) => {
       {...attributes}
       {...listeners}
     >
-      <div className="relative" ref={anchorRef}>
-        <p>{card.title}</p>
+      <div
+        className="relative h-full min-h-0 w-full min-w-0 overflow-y-auto"
+        ref={anchorRef}
+      >
+        <p className="break-words whitespace-pre-wrap">{card.title}</p>
         {isMouseOver && (
           <button
             className="absolute top-0 right-0 rounded-xl stroke-white p-1 hover:bg-stone-700"
@@ -100,13 +102,6 @@ const Card = ({ card, deleteCard, containerRef }) => {
       </div>
     </div>
   );
-};
-
-Card.propTypes = {
-  card: PropTypes.object.isRequired,
-  deleteCard: PropTypes.func.isRequired,
-  editCard: PropTypes.func.isRequired,
-  containerRef: PropTypes.object.isRequired,
 };
 
 export default Card;
