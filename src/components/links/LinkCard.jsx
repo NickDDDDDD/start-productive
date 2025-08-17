@@ -1,4 +1,3 @@
-import { twMerge } from "tailwind-merge";
 import { useEffect, useState } from "react";
 import { loadIconById } from "../../utils/iconLoader"; // 记得换成你实际路径
 import { RiDeleteBin2Line } from "react-icons/ri";
@@ -35,11 +34,14 @@ const LinkCard = ({
       target="_blank"
       rel="noopener noreferrer"
       aria-label={name}
-      className="relative flex aspect-square w-full items-center justify-center rounded-xl bg-stone-200 p-4 shadow-xl transition-colors hover:bg-stone-300"
+      className="relative flex aspect-video w-full items-center justify-center rounded-xl bg-stone-200 p-4 shadow-md transition-colors hover:bg-stone-300"
     >
       {err && <span className="text-xs text-red-500">!</span>}
       {!err && Icon && (
-        <Icon className={twMerge("h-full w-full")} style={{ color }} />
+        <div className="flex h-full w-full items-center justify-start gap-2">
+          <Icon className="h-full w-fit" style={{ color }} />
+          <h3 className="text-base font-semibold capitalize">{name}</h3>
+        </div>
       )}
       {isEdit && (
         <button

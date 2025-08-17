@@ -11,4 +11,17 @@
   textarea {
     @apply w-full resize-none rounded-xl border-none bg-stone-200 p-2 outline-none;
   }
+
+  @media (prefers-color-scheme: light) {
+    * {
+      scrollbar-color: theme("colors.stone.300") theme("colors.stone.200");
+    }
+
+    *::-webkit-scrollbar-track {
+      background: theme("colors.stone.200");
+    }
+    *::-webkit-scrollbar-thumb {
+      background-color: theme("colors.stone.300");
+    }
+  }
 }

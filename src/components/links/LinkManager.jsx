@@ -31,7 +31,8 @@ const LinkManager = ({ links, setLinks }) => {
   };
 
   return (
-    <div className="flex h-full flex-col gap-4">
+    <div className="flex h-full min-h-0 flex-col gap-4">
+      {/* header */}
       <div className="flex justify-between px-1">
         <p className="text-base font-bold">Links</p>
         <button
@@ -45,6 +46,7 @@ const LinkManager = ({ links, setLinks }) => {
           )}
         </button>
       </div>
+      {/* display when edited */}
       {!isAddingLink && isEdit && (
         <button
           className="rounded-xl bg-yellow-500 p-1 hover:bg-yellow-400"
@@ -106,18 +108,20 @@ const LinkManager = ({ links, setLinks }) => {
           </div>
         </form>
       )}
-
-      {links.map((link) => (
-        <LinkCard
-          name={link.name}
-          url={link.url}
-          key={link.name}
-          iconId={link.iconId}
-          color={link.color}
-          isEdit={isEdit}
-          onDelete={() => deleteLink(link.name)}
-        />
-      ))}
+      {/*  links */}
+      <div className="flex min-h-0 flex-col gap-2 overflow-y-auto">
+        {links.map((link) => (
+          <LinkCard
+            name={link.name}
+            url={link.url}
+            key={link.name}
+            iconId={link.iconId}
+            color={link.color}
+            isEdit={isEdit}
+            onDelete={() => deleteLink(link.name)}
+          />
+        ))}
+      </div>
     </div>
   );
 };
