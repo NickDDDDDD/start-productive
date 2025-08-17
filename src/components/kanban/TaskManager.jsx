@@ -190,7 +190,7 @@ const TaskManager = ({
             />
           </div>
           {/* kanban area */}
-          <div className="col-span-14 flex h-full items-start justify-start gap-4 overflow-x-auto rounded-xl bg-stone-200 p-4">
+          <div className="col-span-14 flex h-full items-start justify-start gap-4 overflow-x-auto rounded-xl bg-stone-200 p-4 shadow-md">
             <div className="mx-auto flex h-full gap-4">
               <div className="flex h-full items-start justify-start gap-4">
                 <SortableContext items={columnsIds}>

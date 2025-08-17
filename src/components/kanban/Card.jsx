@@ -59,7 +59,7 @@ const Card = ({ card, deleteCard, containerRef }) => {
     />
   ) : (
     <div
-      className="h-24 w-full flex-shrink-0 rounded-xl bg-stone-400 p-2"
+      className="h-24 w-full flex-shrink-0 rounded-xl bg-stone-300 p-2 shadow-sm"
       onMouseOver={() => setIsMouseOver(true)}
       onMouseLeave={() => setIsMouseOver(false)}
       ref={setNodeRef}

@@ -3,19 +3,17 @@ import { useState } from "react";
 import { FaXmark } from "react-icons/fa6";
 import { FaPlus } from "react-icons/fa6";
 import { BsThreeDots } from "react-icons/bs";
+import { nanoid } from "nanoid";
 
 const LinkManager = ({ links, setLinks }) => {
-  const [form, setForm] = useState({
-    name: "",
-    url: "",
-    iconId: "",
-    color: "#000000",
-  });
+  const emptyForm = { id: "", name: "", url: "" };
+
+  const [form, setForm] = useState(emptyForm);
 
   const [isEdit, setIsEdit] = useState(false);
 
-  function deleteLink(name) {
-    setLinks((prevLinks) => prevLinks.filter((link) => link.name !== name));
+  function deleteLink(id) {
+    setLinks((prevLinks) => prevLinks.filter((link) => link.id !== id));
   }
   const [isAddingLink, setIsAddingLink] = useState(false);
 
@@ -26,7 +24,10 @@ const LinkManager = ({ links, setLinks }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    setLinks((prev) => [...prev, form]);
+    const newLink = { ...form, id: nanoid() };
+
+    setLinks((prev) => [...prev, newLink]);
+    setForm(emptyForm);
     setIsAddingLink(false);
   };
 
@@ -37,7 +38,7 @@ const LinkManager = ({ links, setLinks }) => {
         <p className="text-base font-bold">Links</p>
         <button
           onClick={() => setIsEdit(!isEdit)}
-          className="rounded-xl p-1 text-sm hover:bg-stone-200"
+          className="rounded-full px-2 py-1 text-xs hover:bg-stone-200"
         >
           {isEdit ? (
             "Cancel Edit"
@@ -49,7 +50,7 @@ const LinkManager = ({ links, setLinks }) => {
       {/* display when edited */}
       {!isAddingLink && isEdit && (
         <button
-          className="rounded-xl bg-yellow-500 p-1 hover:bg-yellow-400"
+          className="rounded-full bg-yellow-400 p-1 hover:bg-yellow-300"
           onClick={handleAddLink}
         >
           <FaPlus className="mr-1 inline-block" />
@@ -76,20 +77,6 @@ const LinkManager = ({ links, setLinks }) => {
             onChange={(e) => setForm({ ...form, url: e.target.value })}
             className="w-full"
           />
-          <input
-            type="text"
-            placeholder="Icon ID"
-            value={form.iconId}
-            onChange={(e) => setForm({ ...form, iconId: e.target.value })}
-            className="w-full"
-          />
-          <input
-            type="color"
-            name="color"
-            value={form.color}
-            onChange={(e) => setForm({ ...form, color: e.target.value })}
-            className="m-0 h-3 w-full p-0"
-          />
 
           <div className="flex items-center justify-start gap-2">
             <button
@@ -112,13 +99,12 @@ const LinkManager = ({ links, setLinks }) => {
       <div className="flex min-h-0 flex-col gap-2 overflow-y-auto">
         {links.map((link) => (
           <LinkCard
+            id={link.id}
             name={link.name}
             url={link.url}
-            key={link.name}
-            iconId={link.iconId}
-            color={link.color}
+            key={link.id}
             isEdit={isEdit}
-            onDelete={() => deleteLink(link.name)}
+            onDelete={deleteLink}
           />
         ))}
       </div>

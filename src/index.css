@@ -24,4 +24,16 @@
       background-color: theme("colors.stone.300");
     }
   }
+
+  @media (prefers-color-scheme: dark) {
+    * {
+      scrollbar-color: theme("colors.stone.300") theme("colors.stone.200");
+    }
+    *::-webkit-scrollbar-track {
+      background: theme("colors.stone.200");
+    }
+    *::-webkit-scrollbar-thumb {
+      background-color: theme("colors.stone.300");
+    }
+  }
 }

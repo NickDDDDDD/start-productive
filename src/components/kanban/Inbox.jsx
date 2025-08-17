@@ -54,7 +54,7 @@ const Inbox = ({ cards, setCards, containerRef }) => {
       {...attributes}
       {...listeners}
     >
-      <div className="flex h-full max-h-full min-h-0 flex-col gap-2 rounded-xl bg-stone-200 p-4">
+      <div className="flex h-full max-h-full min-h-0 flex-col gap-2 rounded-xl bg-stone-200 p-4 shadow-md">
         {/* header */}
         <div className="flex items-center justify-between p-2 text-base font-bold">
           <div className="flex flex-1 items-center gap-2">

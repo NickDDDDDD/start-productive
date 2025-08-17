@@ -76,7 +76,7 @@ const Column = ({
       {...attributes}
       {...listeners}
     >
-      <div className="flex max-h-full min-h-0 flex-col gap-2 rounded-xl bg-stone-300 p-2">
+      <div className="flex max-h-full min-h-0 flex-col gap-2 rounded-xl border border-stone-300 p-2 shadow-sm">
         {/* header */}
         <div
           className="flex cursor-grab items-center justify-between p-2 text-base font-bold"
