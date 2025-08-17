@@ -141,7 +141,7 @@ const Column = ({
             placeholder="Do something..."
             value={cardContent}
             onChange={(e) => setCardContent(e.target.value)}
-            className="h-32 w-full resize-none rounded-xl border-none bg-stone-200 p-2 outline-none"
+            className="h-32 w-full resize-none rounded-xl border-none bg-stone-300 p-2 outline-none"
             wrap="soft"
           />
         </div>
