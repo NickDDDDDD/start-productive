@@ -8,7 +8,7 @@ import { FaPlus } from "react-icons/fa6";
 
 import { nanoid } from "nanoid";
 
-const Inbox = ({ cards, setCards, containerRef }) => {
+const Inbox = ({ cards, setCards, updateCard, containerRef }) => {
   // 注册成 droppable，但禁用列本身拖拽
   const { setNodeRef, attributes, listeners, transform, transition } =
     useSortable({
@@ -107,7 +107,7 @@ const Inbox = ({ cards, setCards, containerRef }) => {
                 key={card.id}
                 card={card}
                 deleteCard={deleteCard}
-                setCards={setCards}
+                updateCard={updateCard}
                 containerRef={containerRef}
               />
             ))}

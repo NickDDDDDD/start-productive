@@ -14,6 +14,7 @@ const Column = ({
   updateColumn,
   cards,
   setCards,
+  updateCard,
   containerRef,
 }) => {
   const {
@@ -126,7 +127,7 @@ const Column = ({
                 key={card.id}
                 card={card}
                 deleteCard={deleteCard}
-                setCards={setCards}
+                updateCard={updateCard}
                 containerRef={containerRef}
               />
             ))}
@@ -176,6 +177,7 @@ Column.propTypes = {
   updateColumn: PropTypes.func.isRequired,
   cards: PropTypes.array.isRequired,
   setCards: PropTypes.func.isRequired,
+  updateCard: PropTypes.func.isRequired,
   containerRef: PropTypes.object.isRequired,
 };
 
