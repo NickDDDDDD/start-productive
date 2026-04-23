@@ -20,7 +20,7 @@ const Card = ({ card, deleteCard, updateCard, containerRef }) => {
     },
   });
 
-  const [isMouseOver, setIsMouseOver] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isMenuClosing, setIsMenuClosing] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -120,8 +120,8 @@ const Card = ({ card, deleteCard, updateCard, containerRef }) => {
   ) : (
     <div
       className="h-24 w-full flex-shrink-0 rounded-xl bg-stone-300 p-2 shadow-sm"
-      onMouseOver={() => setIsMouseOver(true)}
-      onMouseLeave={() => setIsMouseOver(false)}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
       ref={setNodeRef}
       style={style}
       {...attributes}
@@ -165,7 +165,7 @@ const Card = ({ card, deleteCard, updateCard, containerRef }) => {
         ) : (
           <>
             <p className="break-words whitespace-pre-wrap">{card.title}</p>
-            {isMouseOver && (
+            {isHovered && (
               <div
                 ref={buttonRef}
                 className="absolute top-0 right-0 rounded-xl stroke-white p-1 hover:bg-stone-700"

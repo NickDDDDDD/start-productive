@@ -3,10 +3,17 @@ import { loadState, saveState, subscribeState } from "../utils/storage";
 import { FcGoogle } from "react-icons/fc";
 import { RiCharacterRecognitionFill } from "react-icons/ri";
 
+const DEFAULT_VISIBLE_SECTIONS = {
+  links: true,
+  taskGenerator: true,
+  inbox: true,
+};
+
 const useKanbanState = () => {
   const [columns, setColumns] = useState([]);
   const [cards, setCards] = useState([]);
   const [links, setLinks] = useState([]);
+  const [visibleSections, setVisibleSections] = useState(DEFAULT_VISIBLE_SECTIONS);
   const [hydrated, setHydrated] = useState(false);
   const saveTimerRef = useRef(null);
 
@@ -18,6 +25,7 @@ const useKanbanState = () => {
       setColumns(s.columns || []);
       setCards(s.cards || []);
       setLinks(s.links || []);
+      setVisibleSections(s.visibleSections || DEFAULT_VISIBLE_SECTIONS);
       setHydrated(true);
     })();
     return () => {
@@ -32,6 +40,7 @@ const useKanbanState = () => {
       setColumns(s.columns || []);
       setCards(s.cards || []);
       setLinks(s.links || []);
+      setVisibleSections(s.visibleSections || DEFAULT_VISIBLE_SECTIONS);
     });
     return unsubscribe;
   }, [hydrated]);
@@ -40,12 +49,12 @@ const useKanbanState = () => {
     if (!hydrated) return;
     clearTimeout(saveTimerRef.current);
     saveTimerRef.current = setTimeout(() => {
-      saveState({ columns, cards, links });
+      saveState({ columns, cards, links, visibleSections });
     }, 200);
     return () => clearTimeout(saveTimerRef.current);
-  }, [columns, cards, links, hydrated]);
+  }, [columns, cards, links, visibleSections, hydrated]);
 
-  return { columns, setColumns, cards, setCards, links, setLinks };
+  return { columns, setColumns, cards, setCards, links, setLinks, visibleSections, setVisibleSections };
 };
 
 export default useKanbanState;

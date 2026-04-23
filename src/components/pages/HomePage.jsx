@@ -21,14 +21,9 @@ import Column from "../kanban/Column";
 import Card from "../kanban/Card";
 
 const HomePage = () => {
-  const { columns, setColumns, cards, setCards, links, setLinks } =
+  const { columns, setColumns, cards, setCards, links, setLinks, visibleSections, setVisibleSections } =
     useKanbanState();
   const [searchTerm, setSearchTerm] = useState("");
-  const [visibleSections, setVisibleSections] = useState({
-    links: true,
-    taskGenerator: true,
-    inbox: true,
-  });
 
   const kanbanFlexGrow = useMemo(
     () =>

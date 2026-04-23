@@ -121,8 +121,8 @@ export default function TaskGenerator() {
 
       {!supported ? (
         <div className="mt-4 rounded-lg border border-red-200 bg-red-50 p-4 text-red-700">
-          ❌ Current environment does not support the Chrome Prompt API.
-          <code className="font-mono">window.LanguageModel</code>
+          <p>❌ Current environment does not support the Chrome Prompt API.</p>
+          <code className="font-mono break-all">window.LanguageModel</code>
         </div>
       ) : (
         <div className="mt-4 space-y-4 rounded-xl">
