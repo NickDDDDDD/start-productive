@@ -1,11 +1,12 @@
 import LinkCard from "./LinkCard";
-import { useState } from "react";
+import { useState, useMemo } from "react";
+import { SortableContext } from "@dnd-kit/sortable";
 import { FaXmark } from "react-icons/fa6";
 import { FaPlus } from "react-icons/fa6";
 import { BsThreeDots } from "react-icons/bs";
 import { nanoid } from "nanoid";
 
-const LinkManager = ({ links, setLinks }) => {
+const Links = ({ links, setLinks }) => {
   const emptyForm = { id: "", name: "", url: "" };
 
   const [form, setForm] = useState(emptyForm);
@@ -18,22 +19,21 @@ const LinkManager = ({ links, setLinks }) => {
   const [isAddingLink, setIsAddingLink] = useState(false);
 
   const handleAddLink = () => {
-    console.log("Adding new link");
     setIsAddingLink(true);
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
     const newLink = { ...form, id: nanoid() };
-
     setLinks((prev) => [...prev, newLink]);
     setForm(emptyForm);
     setIsAddingLink(false);
   };
 
+  const linkIds = useMemo(() => links.map((l) => l.id), [links]);
+
   return (
     <div className="flex h-full min-h-0 flex-col gap-4">
-      {/* header */}
       <div className="flex justify-between px-1">
         <p className="text-base font-bold">Links</p>
         <button
@@ -47,7 +47,6 @@ const LinkManager = ({ links, setLinks }) => {
           )}
         </button>
       </div>
-      {/* display when edited */}
       {!isAddingLink && isEdit && (
         <button
           className="rounded-full bg-yellow-400 p-1 hover:bg-yellow-300"
@@ -77,7 +76,6 @@ const LinkManager = ({ links, setLinks }) => {
             onChange={(e) => setForm({ ...form, url: e.target.value })}
             className="w-full"
           />
-
           <div className="flex items-center justify-start gap-2">
             <button
               type="submit"
@@ -95,21 +93,22 @@ const LinkManager = ({ links, setLinks }) => {
           </div>
         </form>
       )}
-      {/*  links */}
       <div className="flex min-h-0 flex-col gap-2 overflow-y-auto">
-        {links.map((link) => (
-          <LinkCard
-            id={link.id}
-            name={link.name}
-            url={link.url}
-            key={link.id}
-            isEdit={isEdit}
-            onDelete={deleteLink}
-          />
-        ))}
+        <SortableContext items={linkIds}>
+          {links.map((link) => (
+            <LinkCard
+              id={link.id}
+              name={link.name}
+              url={link.url}
+              key={link.id}
+              isEdit={isEdit}
+              onDelete={deleteLink}
+            />
+          ))}
+        </SortableContext>
       </div>
     </div>
   );
 };
 
-export default LinkManager;
+export default Links;
