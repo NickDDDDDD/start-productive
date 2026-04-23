@@ -307,7 +307,7 @@ const HomePage = () => {
             <button
               className={`rounded-full text-sm font-medium transition-all ${
                 visibleSections.links
-                  ? "bg-yellow-400 text-stone-900 shadow-md"
+                  ? "bg-yellow-400 text-stone-700 shadow-md"
                   : "bg-stone-400 text-white"
               } w-2.5 h-2.5 group-hover:w-auto group-hover:h-auto group-hover:px-6 group-hover:py-2 overflow-hidden`}
               onClick={() => toggleSection("links")}
@@ -317,7 +317,7 @@ const HomePage = () => {
             <button
               className={`rounded-full text-sm font-medium transition-all ${
                 visibleSections.taskGenerator
-                  ? "bg-yellow-400 text-stone-900 shadow-md"
+                  ? "bg-yellow-400 text-stone-700 shadow-md"
                   : "bg-stone-400 text-white"
               } w-2.5 h-2.5 group-hover:w-auto group-hover:h-auto group-hover:px-6 group-hover:py-2 overflow-hidden`}
               onClick={() => toggleSection("taskGenerator")}
@@ -327,7 +327,7 @@ const HomePage = () => {
             <button
               className={`rounded-full text-sm font-medium transition-all ${
                 visibleSections.inbox
-                  ? "bg-yellow-400 text-stone-900 shadow-md"
+                  ? "bg-yellow-400 text-stone-700 shadow-md"
                   : "bg-stone-400 text-white"
               } w-2.5 h-2.5 group-hover:w-auto group-hover:h-auto group-hover:px-6 group-hover:py-2 overflow-hidden`}
               onClick={() => toggleSection("inbox")}
@@ -335,7 +335,7 @@ const HomePage = () => {
               <span className="hidden group-hover:inline">Inbox</span>
             </button>
             <button
-              className="rounded-full text-sm font-medium bg-yellow-400 text-stone-900 shadow-md cursor-default w-2.5 h-2.5 group-hover:w-auto group-hover:h-auto group-hover:px-6 group-hover:py-2 overflow-hidden"
+              className="rounded-full text-sm font-medium bg-yellow-400 text-stone-700 shadow-md cursor-default w-2.5 h-2.5 group-hover:w-auto group-hover:h-auto group-hover:px-6 group-hover:py-2 overflow-hidden"
             >
               <span className="hidden group-hover:inline">Kanban</span>
             </button>

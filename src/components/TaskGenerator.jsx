@@ -99,7 +99,7 @@ export default function TaskGenerator() {
   return (
     <div className="mx-auto h-full max-w-3xl rounded-xl bg-stone-200 p-4 shadow-md">
       <div className="flex items-center justify-between">
-        <h2 className="text-base font-bold tracking-tight">Task Generator</h2>
+        <h2 className="text-base font-medium tracking-tight text-stone-700">Task Generator</h2>
         <button
           type="button"
           onClick={refreshAvailability}
@@ -131,7 +131,7 @@ export default function TaskGenerator() {
             {!ready ? (
               <button
                 onClick={initSession}
-                className="w-full rounded-full bg-yellow-400 px-4 py-2 text-base font-medium shadow-sm hover:bg-yellow-300 active:scale-95"
+                className="w-full rounded-full bg-yellow-400/60 px-4 py-2 text-base font-medium shadow-sm backdrop-blur-sm hover:bg-yellow-300 active:scale-95"
               >
                 Enable Gemini in browser
               </button>

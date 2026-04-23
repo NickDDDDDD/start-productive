@@ -24,7 +24,7 @@ const SearchBar = ({ onSearch }) => {
         placeholder="🔍  Search cards"
         value={query}
         onChange={handleQueryChange}
-        className="w-full rounded-full border-2 border-stone-200 bg-stone-100 px-4 py-2 focus:border-yellow-500"
+        className="w-full rounded-full border-2 border-stone-200 bg-stone-100 px-4 py-2 text-stone-700 focus:border-yellow-500"
       />
     </div>
   );

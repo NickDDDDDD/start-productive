@@ -71,19 +71,19 @@ const LinkCard = ({ id, name, url, isEdit, onDelete }) => {
       {...listeners}
       className="relative flex aspect-video w-full shrink-0 items-center justify-center overflow-hidden rounded-xl bg-stone-200 p-4 shadow-md transition-colors hover:bg-stone-300"
     >
-      <div className="flex h-full w-full items-center justify-start gap-2">
-        <div className="flex h-full items-center justify-center">
+      <div className="flex h-full w-full items-center justify-start gap-3">
+        <div className="flex items-center justify-center">
           {faviconSrc && imgOk ? (
             <img
               src={faviconSrc}
               alt=""
-              className="aspect-square h-full flex-none"
+              className="aspect-square h-10 w-10 flex-none rounded-lg"
               referrerPolicy="no-referrer"
               onError={() => setImgOk(false)}
             />
           ) : (
-            <div className="grid aspect-square h-full flex-none place-items-center rounded-full bg-stone-900 font-semibold text-white select-none">
-              <span className="text-base leading-none">{initial}</span>
+            <div className="grid aspect-square h-10 w-10 flex-none place-items-center rounded-lg bg-stone-700 font-semibold text-white select-none">
+              <span className="text-sm leading-none">{initial}</span>
             </div>
           )}
         </div>
@@ -97,9 +97,9 @@ const LinkCard = ({ id, name, url, isEdit, onDelete }) => {
             e.stopPropagation();
             onDelete(id);
           }}
-          className="absolute top-2 right-2 transition-colors hover:text-red-500"
+          className="group absolute top-2 right-2 transition-colors hover:text-red-400"
         >
-          <RiDeleteBin2Line />
+          <RiDeleteBin2Line className="group-hover:text-red-400" />
         </button>
       )}
     </a>

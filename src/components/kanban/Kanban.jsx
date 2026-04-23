@@ -40,7 +40,7 @@ const Kanban = ({
           </SortableContext>
         </div>
         <button
-          className="flex cursor-pointer items-center justify-center gap-2 self-start rounded-full bg-yellow-400 px-6 py-2 shadow-sm transition duration-150 hover:bg-yellow-300 hover:text-black focus:ring-2 active:scale-95"
+          className="flex cursor-pointer items-center justify-center gap-2 self-start rounded-full bg-yellow-400/60 px-6 py-2 font-medium shadow-sm backdrop-blur-sm transition duration-150 hover:bg-yellow-300 hover:text-stone-700 focus:ring-2 active:scale-95"
           onClick={(e) => {
             createColumn();
             e.currentTarget.blur();

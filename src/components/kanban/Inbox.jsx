@@ -56,9 +56,9 @@ const Inbox = ({ cards, setCards, updateCard, containerRef }) => {
     >
       <div className="flex h-full max-h-full min-h-0 flex-col gap-2 rounded-xl bg-stone-200 p-4 shadow-md">
         {/* header */}
-        <div className="flex items-center justify-between p-2 text-base font-bold">
+        <div className="flex items-center justify-between p-2 text-base font-medium text-stone-700">
           <div className="flex flex-1 items-center gap-2">
-            <div className="self-center rounded-md bg-stone-700 px-2 py-1 text-xs text-neutral-100">
+            <div className="self-center rounded-md bg-stone-700/70 px-2 py-1 text-xs text-neutral-100 backdrop-blur-sm">
               {cards.length}
             </div>
             <p>Inbox</p>
@@ -80,7 +80,7 @@ const Inbox = ({ cards, setCards, updateCard, containerRef }) => {
         </div>
         <div className="flex items-center justify-center gap-2">
           <button
-            className="flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-full bg-yellow-400 p-2 shadow-sm transition duration-150 hover:bg-yellow-300 focus:bg-yellow-500 active:scale-95"
+            className="flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-full bg-yellow-400/60 p-2 font-medium text-stone-700 shadow-sm backdrop-blur-sm transition duration-150 hover:bg-yellow-300 focus:bg-yellow-500 active:scale-95"
             onClick={(e) => {
               createCard();
               e.currentTarget.blur();
@@ -91,10 +91,10 @@ const Inbox = ({ cards, setCards, updateCard, containerRef }) => {
           </button>
           {isAddingCard && (
             <button
-              className="flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-xl stroke-stone-700 p-1 transition duration-150 hover:bg-stone-400 hover:stroke-white active:scale-95"
+              className="group flex cursor-pointer items-center justify-center rounded-full px-3 py-2 text-stone-700 transition-colors hover:bg-stone-300 hover:text-red-400 active:scale-95"
               onClick={() => setIsAddingCard(false)}
             >
-              <FaXmark />
+              <FaXmark className="group-hover:text-red-400" />
             </button>
           )}
         </div>

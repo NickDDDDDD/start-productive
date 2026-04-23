@@ -2,6 +2,7 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { useState, useEffect, useRef } from "react";
 import { BsThreeDots } from "react-icons/bs";
+import { FaXmark } from "react-icons/fa6";
 import { createPortal } from "react-dom";
 
 const Card = ({ card, deleteCard, updateCard, containerRef }) => {
@@ -113,13 +114,13 @@ const Card = ({ card, deleteCard, updateCard, containerRef }) => {
 
   return isDragging ? (
     <div
-      className="h-20 w-full flex-shrink-0 rounded-xl border-2 border-yellow-500 p-2"
+      className="h-24 w-full flex-shrink-0 rounded-xl border-2 border-yellow-500 p-2"
       ref={setNodeRef}
       style={style}
     />
   ) : (
     <div
-      className="h-24 w-full flex-shrink-0 rounded-xl bg-stone-300 p-2 shadow-sm"
+      className="h-24 w-full flex-shrink-0 rounded-xl bg-stone-300/40 p-2 shadow-sm backdrop-blur-sm"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       ref={setNodeRef}
@@ -147,32 +148,32 @@ const Card = ({ card, deleteCard, updateCard, containerRef }) => {
                 }
               }}
             />
-            <div className="flex justify-end gap-2 mt-1">
+            <div className="flex items-center justify-end gap-2 mt-1">
               <button
-                className="px-2 py-1 text-xs bg-stone-200 rounded hover:bg-stone-400"
-                onClick={handleCancel}
-              >
-                Cancel
-              </button>
-              <button
-                className="px-2 py-1 text-xs bg-yellow-400 rounded hover:bg-yellow-300"
+                className="cursor-pointer rounded-full px-3 py-1 text-xs text-stone-700 transition-colors hover:bg-yellow-400 active:scale-95"
                 onClick={handleSave}
               >
-                Save
+                Confirm
+              </button>
+              <button
+                className="group flex cursor-pointer items-center justify-center rounded-full px-2 py-1 text-stone-700 transition-colors hover:bg-stone-700 hover:text-red-400 active:scale-95"
+                onClick={handleCancel}
+              >
+                <FaXmark className="text-xs group-hover:text-red-400" />
               </button>
             </div>
           </div>
         ) : (
           <>
-            <p className="break-words whitespace-pre-wrap">{card.title}</p>
+            <p className="break-words whitespace-pre-wrap text-stone-700">{card.title}</p>
             {isHovered && (
               <div
                 ref={buttonRef}
-                className="absolute top-0 right-0 rounded-xl stroke-white p-1 hover:bg-stone-700"
+                className="group absolute top-0 right-0 rounded-xl stroke-white p-1 hover:bg-stone-700"
                 onMouseEnter={handleButtonMouseEnter}
                 onMouseLeave={handleButtonMouseLeave}
               >
-                <BsThreeDots className="text-stone-900 hover:text-stone-200" />
+                <BsThreeDots className="text-stone-700 group-hover:text-stone-200" />
               </div>
             )}
             {(isMenuOpen || isMenuClosing) &&
@@ -180,19 +181,19 @@ const Card = ({ card, deleteCard, updateCard, containerRef }) => {
               createPortal(
                 <div
                   ref={menuRef}
-                  className={`absolute z-10 overflow-clip rounded-xl bg-stone-700 shadow-lg transition-all duration-150 ${isMenuClosing ? 'opacity-0 scale-95' : 'opacity-100 scale-100'}`}
+                  className={`absolute z-10 flex flex-col gap-1 rounded-xl bg-stone-700/70 p-1.5 shadow-lg backdrop-blur-sm transition-all duration-150 ${isMenuClosing ? 'opacity-0 scale-95' : 'opacity-100 scale-100'}`}
                   style={menuStyle}
                   onMouseEnter={handleMenuMouseEnter}
                   onMouseLeave={handleMenuMouseLeave}
                 >
                   <button
-                    className="w-full px-4 py-2 text-left text-neutral-100 hover:bg-stone-700"
+                    className="rounded-lg px-3 py-1.5 text-left text-sm text-neutral-100 hover:bg-stone-600 transition-colors"
                     onClick={handleEdit}
                   >
                     Edit
                   </button>
                   <button
-                    className="w-full px-4 py-2 text-left text-neutral-100 hover:bg-stone-700"
+                    className="rounded-lg px-3 py-1.5 text-left text-sm text-neutral-100 hover:bg-stone-600 hover:text-red-400 transition-colors"
                     onClick={() => {
                       setIsMenuClosing(true);
                       setTimeout(() => {

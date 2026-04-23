@@ -35,7 +35,7 @@ const Links = ({ links, setLinks }) => {
   return (
     <div className="flex h-full min-h-0 flex-col gap-4">
       <div className="flex justify-between px-1">
-        <p className="text-base font-bold">Links</p>
+        <p className="text-base font-medium text-stone-700">Links</p>
         <button
           onClick={() => setIsEdit(!isEdit)}
           className="rounded-full px-2 py-1 text-xs hover:bg-stone-200"
@@ -49,7 +49,7 @@ const Links = ({ links, setLinks }) => {
       </div>
       {!isAddingLink && isEdit && (
         <button
-          className="rounded-full bg-yellow-400 p-1 hover:bg-yellow-300"
+          className="rounded-full bg-yellow-400/60 p-1 backdrop-blur-sm hover:bg-yellow-300"
           onClick={handleAddLink}
         >
           <FaPlus className="mr-1 inline-block" />
@@ -79,7 +79,7 @@ const Links = ({ links, setLinks }) => {
           <div className="flex items-center justify-start gap-2">
             <button
               type="submit"
-              className="flex-1 rounded-xl bg-yellow-500 p-1 px-2 hover:bg-yellow-400"
+              className="flex-1 rounded-xl bg-yellow-500/60 p-1 px-2 backdrop-blur-sm hover:bg-yellow-400"
             >
               Confirm
             </button>
