@@ -307,42 +307,42 @@ const HomePage = () => {
         </div>
 
         {/* 胶囊菜单栏 */}
-        <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 z-10">
-          <div className="flex gap-2 bg-stone-200 p-2 rounded-full shadow-xl">
+        <div className="group absolute bottom-6 left-1/2 transform -translate-x-1/2 z-10">
+          <div className="flex gap-2 bg-stone-200 p-2 rounded-full shadow-xl transition-all duration-300">
             <button
-              className={`px-6 py-2 rounded-full text-sm font-medium transition-all ${
+              className={`rounded-full text-sm font-medium transition-all ${
                 visibleSections.links
                   ? "bg-yellow-400 text-stone-900 shadow-md"
-                  : "text-stone-600 hover:text-stone-900 hover:bg-stone-300"
-              }`}
+                  : "bg-stone-400 text-white"
+              } w-2.5 h-2.5 group-hover:w-auto group-hover:h-auto group-hover:px-6 group-hover:py-2 overflow-hidden`}
               onClick={() => toggleSection("links")}
             >
-              Links
+              <span className="hidden group-hover:inline">Links</span>
             </button>
             <button
-              className={`px-6 py-2 rounded-full text-sm font-medium transition-all ${
+              className={`rounded-full text-sm font-medium transition-all ${
                 visibleSections.taskGenerator
                   ? "bg-yellow-400 text-stone-900 shadow-md"
-                  : "text-stone-600 hover:text-stone-900 hover:bg-stone-300"
-              }`}
+                  : "bg-stone-400 text-white"
+              } w-2.5 h-2.5 group-hover:w-auto group-hover:h-auto group-hover:px-6 group-hover:py-2 overflow-hidden`}
               onClick={() => toggleSection("taskGenerator")}
             >
-              Task Generator
+              <span className="hidden group-hover:inline">Task Generator</span>
             </button>
             <button
-              className={`px-6 py-2 rounded-full text-sm font-medium transition-all ${
+              className={`rounded-full text-sm font-medium transition-all ${
                 visibleSections.inbox
                   ? "bg-yellow-400 text-stone-900 shadow-md"
-                  : "text-stone-600 hover:text-stone-900 hover:bg-stone-300"
-              }`}
+                  : "bg-stone-400 text-white"
+              } w-2.5 h-2.5 group-hover:w-auto group-hover:h-auto group-hover:px-6 group-hover:py-2 overflow-hidden`}
               onClick={() => toggleSection("inbox")}
             >
-              Inbox
+              <span className="hidden group-hover:inline">Inbox</span>
             </button>
             <button
-              className="px-6 py-2 rounded-full text-sm font-medium bg-yellow-400 text-stone-900 shadow-md cursor-default"
+              className="rounded-full text-sm font-medium bg-yellow-400 text-stone-900 shadow-md cursor-default w-2.5 h-2.5 group-hover:w-auto group-hover:h-auto group-hover:px-6 group-hover:py-2 overflow-hidden"
             >
-              Kanban
+              <span className="hidden group-hover:inline">Kanban</span>
             </button>
           </div>
         </div>
