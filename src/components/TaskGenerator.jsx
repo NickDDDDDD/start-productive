@@ -1,7 +1,8 @@
 import { useState, useMemo } from "react";
 import { nanoid } from "nanoid";
+import PropTypes from "prop-types";
 import { usePromptSession } from "../hooks/usePromptSession";
-import useKanbanState from "../hooks/useKanbanState";
+import { DEFAULT_CARD_META } from "../utils/cardPriority";
 
 // ---- Prompt & 解析工具 ------------------------------------------------
 const buildJSONPrompt = (input) =>
@@ -30,7 +31,7 @@ function safeParseJSON(text) {
   }
 }
 
-export default function TaskGenerator() {
+export default function TaskGenerator({ setCards }) {
   const {
     supported,
     availability,
@@ -42,8 +43,6 @@ export default function TaskGenerator() {
     refreshAvailability,
     prompt,
   } = usePromptSession();
-
-  const { setCards } = useKanbanState();
 
   const [input, setInput] = useState("");
   const [creating, setCreating] = useState(false);
@@ -81,12 +80,12 @@ export default function TaskGenerator() {
         id: nanoid(),
         columnId: "inbox",
         title: String(title).trim() || "Untitled",
+        ...DEFAULT_CARD_META,
       }));
 
       setCards((prev) => {
         const inboxCards = prev.filter((c) => c.columnId === "inbox");
         const otherCards = prev.filter((c) => c.columnId !== "inbox");
-        // put new cards at the top of Inbox
         return [...newCards, ...inboxCards, ...otherCards];
       });
     } catch (e) {
@@ -191,3 +190,7 @@ export default function TaskGenerator() {
     </div>
   );
 }
+
+TaskGenerator.propTypes = {
+  setCards: PropTypes.func.isRequired,
+};

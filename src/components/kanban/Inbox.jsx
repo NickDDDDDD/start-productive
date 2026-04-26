@@ -5,8 +5,9 @@ import { useMemo, useState } from "react";
 import Card from "./Card";
 import { FaXmark } from "react-icons/fa6";
 import { FaPlus } from "react-icons/fa6";
-
+import PropTypes from "prop-types";
 import { nanoid } from "nanoid";
+import { DEFAULT_CARD_META } from "../../utils/cardPriority";
 
 const Inbox = ({ cards, setCards, updateCard, containerRef }) => {
   // 注册成 droppable，但禁用列本身拖拽
@@ -31,7 +32,12 @@ const Inbox = ({ cards, setCards, updateCard, containerRef }) => {
     if (!isAddingCard) {
       setIsAddingCard(true);
     } else {
-      const cardToAdd = { id: nanoid(), columnId: "inbox", title: cardContent };
+      const cardToAdd = {
+        id: nanoid(),
+        columnId: "inbox",
+        title: cardContent,
+        ...DEFAULT_CARD_META,
+      };
       setCards((prev) => {
         const inboxCards = prev.filter((c) => c.columnId === "inbox");
         const otherCards = prev.filter((c) => c.columnId !== "inbox");
@@ -63,6 +69,21 @@ const Inbox = ({ cards, setCards, updateCard, containerRef }) => {
             </div>
             <p>Inbox</p>
           </div>
+        </div>
+
+        {/* cards 容器 */}
+        <div className="flex min-h-0 flex-col gap-2 overflow-y-auto">
+          <SortableContext items={cardsIds}>
+            {cards.map((card) => (
+              <Card
+                key={card.id}
+                card={card}
+                deleteCard={deleteCard}
+                updateCard={updateCard}
+                containerRef={containerRef}
+              />
+            ))}
+          </SortableContext>
         </div>
 
         {/* add card and text area */}
@@ -98,24 +119,16 @@ const Inbox = ({ cards, setCards, updateCard, containerRef }) => {
             </button>
           )}
         </div>
-
-        {/* cards 容器 */}
-        <div className="flex min-h-0 flex-col gap-2 overflow-y-auto">
-          <SortableContext items={cardsIds}>
-            {cards.map((card) => (
-              <Card
-                key={card.id}
-                card={card}
-                deleteCard={deleteCard}
-                updateCard={updateCard}
-                containerRef={containerRef}
-              />
-            ))}
-          </SortableContext>
-        </div>
       </div>
     </div>
   );
+};
+
+Inbox.propTypes = {
+  cards: PropTypes.array.isRequired,
+  setCards: PropTypes.func.isRequired,
+  updateCard: PropTypes.func.isRequired,
+  containerRef: PropTypes.object.isRequired,
 };
 
 export default Inbox;

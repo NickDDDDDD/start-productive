@@ -21,8 +21,16 @@ import Column from "../kanban/Column";
 import Card from "../kanban/Card";
 
 const HomePage = () => {
-  const { columns, setColumns, cards, setCards, links, setLinks, visibleSections, setVisibleSections } =
-    useKanbanState();
+  const {
+    columns,
+    setColumns,
+    cards,
+    setCards,
+    links,
+    setLinks,
+    visibleSections,
+    setVisibleSections,
+  } = useKanbanState();
   const [searchTerm, setSearchTerm] = useState("");
 
   const kanbanFlexGrow = useMemo(
@@ -39,6 +47,7 @@ const HomePage = () => {
   const [activeLink, setActiveLink] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
   const containerRef = useRef(null);
+  const lastCardDragOverRef = useRef(null);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 15 } }),
@@ -63,7 +72,9 @@ const HomePage = () => {
         .filter(
           (c) =>
             c.title?.toLowerCase().includes(s) ||
-            c.desc?.toLowerCase().includes(s) ||
+            c.description?.toLowerCase().includes(s) ||
+            c.comments?.some((comment) => comment.text?.toLowerCase().includes(s)) ||
+            c.checklistItems?.some((item) => item.text?.toLowerCase().includes(s)) ||
             c.tags?.some((t) => t.toLowerCase().includes(s)),
         )
         .map((c) => c.id),
@@ -77,8 +88,7 @@ const HomePage = () => {
 
   useEffect(() => {
     if (isDragging) {
-      const originalStyle =
-        window.getComputedStyle(document.body).overflow;
+      const originalStyle = window.getComputedStyle(document.body).overflow;
       document.body.style.overflow = "hidden";
       return () => {
         document.body.style.overflow = originalStyle;
@@ -104,14 +114,22 @@ const HomePage = () => {
     );
   }
 
-  function updateCard(id, title) {
+  function updateCard(id, patch) {
     setCards((prev) =>
-      prev.map((card) => (card.id === id ? { ...card, title } : card)),
+      prev.map((card) =>
+        card.id === id
+          ? {
+              ...card,
+              ...(typeof patch === "string" ? { title: patch } : patch),
+            }
+          : card,
+      ),
     );
   }
 
   function handleDragStart({ active }) {
     setIsDragging(true);
+    lastCardDragOverRef.current = null;
     const column = active.data.current?.column;
     if (active.data.current?.type === "column" && column) {
       setActiveColumn(column);
@@ -133,10 +151,15 @@ const HomePage = () => {
     if (active.id === over.id) return;
 
     if (over.data.current?.type === "card") {
+      const signature = `${active.id}:card:${over.id}`;
+      if (lastCardDragOverRef.current === signature) return;
+      lastCardDragOverRef.current = signature;
+
       setCards((prev) => {
         const activeIndex = prev.findIndex((card) => card.id === active.id);
         const overIndex = prev.findIndex((card) => card.id === over.id);
         if (activeIndex === -1 || overIndex === -1) return prev;
+        if (activeIndex === overIndex) return prev;
         const newCards = prev.map((card, index) => {
           if (index === activeIndex) {
             return { ...card, columnId: prev[overIndex].columnId };
@@ -146,9 +169,19 @@ const HomePage = () => {
         return arrayMove(newCards, activeIndex, overIndex);
       });
     } else if (over.data.current?.type === "column") {
+      const signature = `${active.id}:column:${over.id}`;
+      if (lastCardDragOverRef.current === signature) return;
+      lastCardDragOverRef.current = signature;
+
       setCards((prev) => {
         const activeIndex = prev.findIndex((card) => card.id === active.id);
         if (activeIndex === -1) return prev;
+        if (
+          prev[activeIndex].columnId === over.id &&
+          activeIndex === prev.length - 1
+        ) {
+          return prev;
+        }
         const newCards = prev.map((card) =>
           card.id === active.id ? { ...card, columnId: over.id } : card,
         );
@@ -162,6 +195,7 @@ const HomePage = () => {
     setActiveColumn(null);
     setActiveCard(null);
     setActiveLink(null);
+    lastCardDragOverRef.current = null;
 
     if (!over) return;
 
@@ -192,6 +226,7 @@ const HomePage = () => {
     setActiveColumn(null);
     setActiveCard(null);
     setActiveLink(null);
+    lastCardDragOverRef.current = null;
   }
 
   return (
@@ -203,11 +238,8 @@ const HomePage = () => {
       onDragCancel={handleDragCancel}
     >
       <div className="relative h-dvh w-full bg-stone-100 p-4 text-base">
-        <div
-          className={`flex h-full w-full flex-col gap-4 ${isDragging ? "touch-none" : ""}`}
-        >
-          {/* Top Row */}
-          <div className="flex gap-4 shrink-0">
+        <div className={`flex h-full w-full flex-col gap-4 ${isDragging ? "touch-none" : ""}`}>
+          <div className="flex shrink-0 gap-4">
             <a
               href="https://portfolio.nixkode.com"
               target="_blank"
@@ -223,12 +255,7 @@ const HomePage = () => {
             </div>
           </div>
 
-          {/* Main Content */}
-          <div
-            className="relative flex h-full min-h-0"
-            ref={containerRef}
-          >
-            {/* Links */}
+          <div className="relative flex h-full min-h-0" ref={containerRef}>
             <div
               className="h-full overflow-hidden transition-all duration-300 ease-in-out"
               style={{
@@ -243,7 +270,7 @@ const HomePage = () => {
                 <Links links={links} setLinks={setLinks} />
               </div>
             </div>
-            {/* Task Generator */}
+
             <div
               className="h-full overflow-hidden transition-all duration-300 ease-in-out"
               style={{
@@ -255,10 +282,10 @@ const HomePage = () => {
               }}
             >
               <div className="h-full w-full">
-                <TaskGenerator />
+                <TaskGenerator setCards={setCards} />
               </div>
             </div>
-            {/* Inbox */}
+
             <div
               className="h-full overflow-hidden transition-all duration-300 ease-in-out"
               style={{
@@ -278,7 +305,7 @@ const HomePage = () => {
                 />
               </div>
             </div>
-            {/* Kanban */}
+
             <div
               className="h-full overflow-hidden transition-all duration-300 ease-in-out"
               style={{
@@ -301,15 +328,14 @@ const HomePage = () => {
           </div>
         </div>
 
-        {/* 胶囊菜单栏 */}
-        <div className="group absolute bottom-6 left-1/2 transform -translate-x-1/2 z-10">
-          <div className="flex gap-2 bg-stone-200 p-2 rounded-full shadow-xl transition-all duration-300">
+        <div className="group absolute bottom-6 left-1/2 z-10 -translate-x-1/2 transform">
+          <div className="flex gap-2 rounded-full bg-stone-200 p-2 shadow-xl transition-all duration-300">
             <button
               className={`rounded-full text-sm font-medium transition-all ${
                 visibleSections.links
                   ? "bg-yellow-400 text-stone-700 shadow-md"
                   : "bg-stone-400 text-white"
-              } w-2.5 h-2.5 group-hover:w-auto group-hover:h-auto group-hover:px-6 group-hover:py-2 overflow-hidden`}
+              } h-2.5 w-2.5 overflow-hidden group-hover:h-auto group-hover:w-auto group-hover:px-6 group-hover:py-2`}
               onClick={() => toggleSection("links")}
             >
               <span className="hidden group-hover:inline">Links</span>
@@ -319,7 +345,7 @@ const HomePage = () => {
                 visibleSections.taskGenerator
                   ? "bg-yellow-400 text-stone-700 shadow-md"
                   : "bg-stone-400 text-white"
-              } w-2.5 h-2.5 group-hover:w-auto group-hover:h-auto group-hover:px-6 group-hover:py-2 overflow-hidden`}
+              } h-2.5 w-2.5 overflow-hidden group-hover:h-auto group-hover:w-auto group-hover:px-6 group-hover:py-2`}
               onClick={() => toggleSection("taskGenerator")}
             >
               <span className="hidden group-hover:inline">Task Generator</span>
@@ -329,14 +355,12 @@ const HomePage = () => {
                 visibleSections.inbox
                   ? "bg-yellow-400 text-stone-700 shadow-md"
                   : "bg-stone-400 text-white"
-              } w-2.5 h-2.5 group-hover:w-auto group-hover:h-auto group-hover:px-6 group-hover:py-2 overflow-hidden`}
+              } h-2.5 w-2.5 overflow-hidden group-hover:h-auto group-hover:w-auto group-hover:px-6 group-hover:py-2`}
               onClick={() => toggleSection("inbox")}
             >
               <span className="hidden group-hover:inline">Inbox</span>
             </button>
-            <button
-              className="rounded-full text-sm font-medium bg-yellow-400 text-stone-700 shadow-md cursor-default w-2.5 h-2.5 group-hover:w-auto group-hover:h-auto group-hover:px-6 group-hover:py-2 overflow-hidden"
-            >
+            <button className="h-2.5 w-2.5 cursor-default overflow-hidden rounded-full bg-yellow-400 text-sm font-medium text-stone-700 shadow-md group-hover:h-auto group-hover:w-auto group-hover:px-6 group-hover:py-2">
               <span className="hidden group-hover:inline">Kanban</span>
             </button>
           </div>
@@ -349,9 +373,7 @@ const HomePage = () => {
               column={activeColumn}
               deleteColumn={deleteColumn}
               updateColumn={updateColumn}
-              cards={visibleCards.filter(
-                (card) => card.columnId === activeColumn.id,
-              )}
+              cards={visibleCards.filter((card) => card.columnId === activeColumn.id)}
               setCards={setCards}
               updateCard={updateCard}
               containerRef={containerRef}

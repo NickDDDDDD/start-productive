@@ -37,7 +37,9 @@ export function usePromptSession() {
       cancelled = true;
       try {
         sessionRef.current?.destroy?.();
-      } catch {}
+      } catch (e) {
+        console.debug("Failed to destroy prompt session during cleanup:", e);
+      }
       sessionRef.current = null;
       setHasSession(false);
       abortRef.current?.abort?.();
@@ -99,7 +101,9 @@ export function usePromptSession() {
   const destroySession = useCallback(() => {
     try {
       sessionRef.current?.destroy?.();
-    } catch {}
+    } catch (e) {
+      setError(e);
+    }
     sessionRef.current = null;
     setHasSession(false);
     setDownloading({ loaded: 0 });

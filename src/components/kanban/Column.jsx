@@ -7,6 +7,7 @@ import { nanoid } from "nanoid";
 import { FaXmark, FaPlus } from "react-icons/fa6";
 import { BsThreeDots } from "react-icons/bs";
 import { createPortal } from "react-dom";
+import { DEFAULT_CARD_META } from "../../utils/cardPriority";
 
 const Column = ({
   column,
@@ -106,6 +107,7 @@ const Column = ({
         id: nanoid(),
         columnId,
         title: cardContent,
+        ...DEFAULT_CARD_META,
       };
       setCards((prev) => [...prev, cardToAdd]);
       setIsAddingCard(false);
