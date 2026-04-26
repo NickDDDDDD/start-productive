@@ -1,22 +1,39 @@
-const KEY = "kanban_state_v1";
+const KEY = "start_productive_board_v2";
+
+export const DEFAULT_VISIBLE_SECTIONS = {
+  links: true,
+  taskGenerator: true,
+  inbox: true,
+};
+
+export const createDefaultState = () => ({
+  columns: [
+    { id: "todo", title: "Todo" },
+    { id: "doing", title: "Doing" },
+    { id: "done", title: "Done" },
+  ],
+  cards: [],
+  links: [],
+  visibleSections: { ...DEFAULT_VISIBLE_SECTIONS },
+});
 
 const hasChromeStorage =
   typeof chrome !== "undefined" && chrome?.storage && chrome.storage.local;
 
 export async function loadState() {
+  const fallback = createDefaultState();
   if (hasChromeStorage) {
     return new Promise((resolve) => {
       chrome.storage.local.get([KEY], (res) => {
-        resolve(res[KEY] || { columns: [], cards: [] });
+        resolve(res[KEY] || fallback);
       });
     });
   }
-  // 开发/网页环境兜底
   try {
     const raw = localStorage.getItem(KEY);
-    return raw ? JSON.parse(raw) : { columns: [], cards: [] };
+    return raw ? JSON.parse(raw) : fallback;
   } catch {
-    return { columns: [], cards: [] };
+    return fallback;
   }
 }
 

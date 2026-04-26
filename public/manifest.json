@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Start Productive - Productive new tab page",
   "version": "1.0.0",
-  "description": "Use my React Kanban as the new tab page.",
+  "description": "Use Start Productive as the new tab page.",
   "chrome_url_overrides": { "newtab": "index.html" },
   "permissions": ["storage", "tabs"],
   "host_permissions": ["<all_urls>"]
