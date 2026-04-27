@@ -10,6 +10,7 @@ import {
 } from "@arco-design/web-vue/es/icon";
 import { CARD_PRIORITY_STYLES, getCardPriority } from "../../utils/cardPriority";
 import { useBoardStore } from "../../stores/board";
+import DraggableCard from "../common/DraggableCard.vue";
 import CardDetail from "./CardDetail.vue";
 
 const props = defineProps({
@@ -45,7 +46,11 @@ const importanceLabel = computed(() =>
 </script>
 
 <template>
-  <article class="task-card" :class="`task-card--${priority.key}`">
+  <DraggableCard
+    class="task-card"
+    :class="`task-card--${priority.key}`"
+    variant="task"
+  >
     <div class="task-card__stripe" :class="priorityStyle.stripe" />
     <div
       class="task-card__body"
@@ -65,15 +70,17 @@ const importanceLabel = computed(() =>
         </a-tag>
       </div>
       <footer class="task-card__meta">
-        <span v-if="card.description">
-          <IconEdit />
-          Details
-        </span>
-        <span v-if="checklistItems.length">
-          <IconCheckSquare />
-          {{ doneChecklistCount }}/{{ checklistItems.length }}
-        </span>
-        <span>
+        <div class="task-card__meta-left">
+          <span v-if="card.description">
+            <IconEdit />
+            Details
+          </span>
+          <span v-if="checklistItems.length">
+            <IconCheckSquare />
+            {{ doneChecklistCount }}/{{ checklistItems.length }}
+          </span>
+        </div>
+        <span class="task-card__comments">
           <IconMessage />
           {{ comments.length }}
         </span>
@@ -102,5 +109,5 @@ const importanceLabel = computed(() =>
     </a-dropdown>
 
     <CardDetail v-model:visible="detailOpen" :card="card" />
-  </article>
+  </DraggableCard>
 </template>

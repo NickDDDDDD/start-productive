@@ -2,7 +2,7 @@
 import { reactive, ref } from "vue";
 import { storeToRefs } from "pinia";
 import Draggable from "vuedraggable";
-import { IconMore, IconPlus } from "@arco-design/web-vue/es/icon";
+import { IconClose, IconEdit, IconPlus } from "@arco-design/web-vue/es/icon";
 import { useBoardStore } from "../../stores/board";
 import LinkCard from "./LinkCard.vue";
 
@@ -28,16 +28,16 @@ function addLink() {
   <section class="links-panel">
     <header class="panel-header">
       <h2>Links</h2>
-      <a-dropdown trigger="click" position="rt">
-        <a-button class="menu-trigger no-drag" shape="circle" size="small">
-          <IconMore />
-        </a-button>
-        <template #content>
-          <a-doption @click="isEdit = !isEdit">
-            {{ isEdit ? "Cancel Edit" : "Edit Links" }}
-          </a-doption>
-        </template>
-      </a-dropdown>
+      <a-button
+        class="menu-trigger no-drag"
+        shape="circle"
+        size="small"
+        :title="isEdit ? 'Cancel Edit' : 'Edit Links'"
+        @click="isEdit = !isEdit"
+      >
+        <IconClose v-if="isEdit" />
+        <IconEdit v-else />
+      </a-button>
     </header>
 
     <a-button

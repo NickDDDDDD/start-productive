@@ -40,11 +40,11 @@ function createCard() {
     <Draggable
       v-model="cardsModel"
       class="card-list"
+      :class="{ 'card-list--empty': !cardsModel.length }"
       item-key="id"
       group="cards"
       :animation="180"
       easing="cubic-bezier(0.2, 0, 0, 1)"
-      :empty-insert-threshold="80"
       :force-fallback="true"
       :fallback-on-body="true"
       fallback-class="drag-fallback"
@@ -58,22 +58,26 @@ function createCard() {
       <template #item="{ element }">
         <Card :card="element" />
       </template>
-    </Draggable>
 
-    <a-textarea
-      v-if="isAdding"
-      v-model="title"
-      class="add-card-input"
-      placeholder="Do something..."
-    />
-    <div class="column-actions">
-      <a-button type="primary" long shape="round" @click="createCard">
-        <template #icon><IconPlus v-if="!isAdding" /></template>
-        {{ isAdding ? "Confirm" : "Add Card" }}
-      </a-button>
-      <a-button v-if="isAdding" shape="round" @click="isAdding = false">
-        Cancel
-      </a-button>
-    </div>
+      <template #footer>
+        <div class="card-list__footer no-drag">
+          <a-textarea
+            v-if="isAdding"
+            v-model="title"
+            class="add-card-input"
+            placeholder="Do something..."
+          />
+          <div class="column-actions">
+            <a-button type="primary" long shape="round" @click="createCard">
+              <template #icon><IconPlus v-if="!isAdding" /></template>
+              {{ isAdding ? "Confirm" : "Add Card" }}
+            </a-button>
+            <a-button v-if="isAdding" shape="round" @click="isAdding = false">
+              Cancel
+            </a-button>
+          </div>
+        </div>
+      </template>
+    </Draggable>
   </section>
 </template>

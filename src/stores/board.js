@@ -13,6 +13,17 @@ let persistenceStarted = false;
 let saveTimer = null;
 let applyingExternalState = false;
 
+function toPlainState(state) {
+  return JSON.parse(
+    JSON.stringify({
+      columns: state.columns,
+      cards: state.cards,
+      links: state.links,
+      visibleSections: state.visibleSections,
+    }),
+  );
+}
+
 function normalizeState(state = {}) {
   const defaults = createDefaultState();
   return {
@@ -97,12 +108,7 @@ export const useBoardStore = defineStore("board", {
           if (!state.hydrated || applyingExternalState) return;
           clearTimeout(saveTimer);
           saveTimer = setTimeout(() => {
-            saveState({
-              columns: state.columns,
-              cards: state.cards,
-              links: state.links,
-              visibleSections: state.visibleSections,
-            });
+            saveState(toPlainState(state));
           }, 200);
         },
         { detached: true, deep: true },

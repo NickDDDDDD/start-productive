@@ -2,6 +2,7 @@
 import { computed, ref, watch } from "vue";
 import { IconDelete } from "@arco-design/web-vue/es/icon";
 import { useBoardStore } from "../../stores/board";
+import DraggableCard from "../common/DraggableCard.vue";
 import { getFavicon } from "../../utils/favicon";
 
 const props = defineProps({
@@ -12,6 +13,11 @@ const props = defineProps({
 const board = useBoardStore();
 const faviconSrc = ref(null);
 const imgOk = ref(true);
+
+function openLink() {
+  if (props.isEdit || !props.link.url) return;
+  window.open(props.link.url, "_blank", "noopener,noreferrer");
+}
 
 const initial = computed(() => {
   const name = props.link.name?.trim();
@@ -39,24 +45,32 @@ watch(
 </script>
 
 <template>
-  <a
+  <DraggableCard
     class="link-card"
-    :href="link.url"
-    target="_blank"
-    rel="noopener noreferrer"
+    variant="link"
     :aria-label="link.name"
   >
-    <span class="link-card__icon">
-      <img
-        v-if="faviconSrc && imgOk"
-        :src="faviconSrc"
-        alt=""
-        referrerpolicy="no-referrer"
-        @error="imgOk = false"
-      />
-      <span v-else>{{ initial }}</span>
-    </span>
-    <strong>{{ link.name }}</strong>
+    <div
+      class="link-card__body"
+      role="button"
+      :tabindex="isEdit ? -1 : 0"
+      @click="openLink"
+      @keyup.enter="openLink"
+      @keyup.space.prevent="openLink"
+    >
+      <span class="link-card__icon">
+        <img
+          v-if="faviconSrc && imgOk"
+          :src="faviconSrc"
+          alt=""
+          draggable="false"
+          referrerpolicy="no-referrer"
+          @error="imgOk = false"
+        />
+        <span v-else>{{ initial }}</span>
+      </span>
+      <strong>{{ link.name }}</strong>
+    </div>
     <a-button
       v-if="isEdit"
       class="link-card__delete"
@@ -67,5 +81,5 @@ watch(
     >
       <IconDelete />
     </a-button>
-  </a>
+  </DraggableCard>
 </template>

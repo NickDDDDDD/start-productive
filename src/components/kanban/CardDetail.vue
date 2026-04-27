@@ -172,6 +172,45 @@ watch(
         />
       </section>
 
+      <section class="detail-section detail-fields">
+        <h3>Eisenhower Matrix</h3>
+        <div class="detail-fields__grid">
+          <div class="detail-fields__control detail-fields__important">
+            <span class="detail-fields__label">Priority</span>
+            <a-checkbox v-model="draft.important">Important</a-checkbox>
+          </div>
+          <div class="detail-fields__control detail-fields__schedule">
+            <span class="detail-fields__label">Due date and time</span>
+            <a-date-picker
+              v-model="draft.dueDate"
+              value-format="YYYY-MM-DD"
+              placeholder="Due date"
+            />
+            <a-time-picker
+              v-model="draft.dueTime"
+              format="HH:mm"
+              value-format="HH:mm"
+              placeholder="Due time"
+              :disabled="!draft.dueDate"
+            />
+          </div>
+          <div class="detail-fields__control detail-fields__workload">
+            <span class="detail-fields__label">Workload</span>
+            <div class="workload-row">
+              <a-input-number
+                v-model="draft.workloadAmount"
+                :min="0.25"
+                :step="0.25"
+              />
+              <a-select v-model="draft.workloadUnit">
+                <a-option value="hours">Hours</a-option>
+                <a-option value="days">Days</a-option>
+              </a-select>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section class="detail-section">
         <h3><IconCheckSquare /> Checklist</h3>
         <div class="checklist">
@@ -245,33 +284,6 @@ watch(
         </a-button>
       </section>
 
-      <section class="detail-section detail-fields">
-        <h3>Fields</h3>
-        <a-checkbox v-model="draft.important">Important</a-checkbox>
-        <a-date-picker
-          v-model="draft.dueDate"
-          value-format="YYYY-MM-DD"
-          placeholder="Due date"
-        />
-        <a-time-picker
-          v-model="draft.dueTime"
-          format="HH:mm"
-          value-format="HH:mm"
-          placeholder="Due time"
-          :disabled="!draft.dueDate"
-        />
-        <div class="workload-row">
-          <a-input-number
-            v-model="draft.workloadAmount"
-            :min="0.25"
-            :step="0.25"
-          />
-          <a-select v-model="draft.workloadUnit">
-            <a-option value="hours">Hours</a-option>
-            <a-option value="days">Days</a-option>
-          </a-select>
-        </div>
-      </section>
     </div>
 
     <template #footer>

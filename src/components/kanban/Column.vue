@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref } from "vue";
+import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 import Draggable from "vuedraggable";
 import {
   IconDelete,
@@ -18,6 +18,7 @@ const isAdding = ref(false);
 const isEditing = ref(false);
 const draftTitle = ref(props.column.title);
 const cardTitle = ref("");
+const titleInputRef = ref(null);
 
 const cardsModel = computed({
   get() {
@@ -30,9 +31,35 @@ const cardsModel = computed({
 });
 
 function saveTitle() {
+  if (!isEditing.value) return;
   board.updateColumn(props.column.id, draftTitle.value || "Untitled");
   isEditing.value = false;
 }
+
+function startTitleEdit() {
+  draftTitle.value = props.column.title;
+  isEditing.value = true;
+}
+
+function cancelTitleEdit() {
+  draftTitle.value = props.column.title;
+  isEditing.value = false;
+}
+
+function handleDocumentPointerDown(event) {
+  if (!isEditing.value) return;
+  const inputElement = titleInputRef.value?.$el;
+  if (inputElement?.contains(event.target)) return;
+  saveTitle();
+}
+
+onMounted(() => {
+  document.addEventListener("pointerdown", handleDocumentPointerDown, true);
+});
+
+onBeforeUnmount(() => {
+  document.removeEventListener("pointerdown", handleDocumentPointerDown, true);
+});
 
 function createCard() {
   if (!isAdding.value) {
@@ -51,13 +78,16 @@ function createCard() {
       <span class="column-count">{{ cardsModel.length }}</span>
       <a-input
         v-if="isEditing"
+        ref="titleInputRef"
         v-model="draftTitle"
+        class="no-drag"
         size="small"
         auto-focus
         @blur="saveTitle"
         @keyup.enter="saveTitle"
+        @keyup.esc="cancelTitleEdit"
       />
-      <h2 v-else @click="isEditing = true">{{ column.title }}</h2>
+      <h2 v-else class="no-drag" @click="startTitleEdit">{{ column.title }}</h2>
       <a-dropdown trigger="click" position="rt">
         <a-button class="menu-trigger no-drag" shape="circle" size="mini" @click.stop>
           <IconMore />
@@ -74,11 +104,11 @@ function createCard() {
     <Draggable
       v-model="cardsModel"
       class="card-list"
+      :class="{ 'card-list--empty': !cardsModel.length }"
       item-key="id"
       group="cards"
       :animation="180"
       easing="cubic-bezier(0.2, 0, 0, 1)"
-      :empty-insert-threshold="80"
       :force-fallback="true"
       :fallback-on-body="true"
       fallback-class="drag-fallback"
@@ -92,22 +122,26 @@ function createCard() {
       <template #item="{ element }">
         <Card :card="element" />
       </template>
-    </Draggable>
 
-    <a-textarea
-      v-if="isAdding"
-      v-model="cardTitle"
-      class="add-card-input"
-      placeholder="Do something..."
-    />
-    <div class="column-actions">
-      <a-button type="primary" long shape="round" @click="createCard">
-        <template #icon><IconPlus v-if="!isAdding" /></template>
-        {{ isAdding ? "Confirm" : "Add Card" }}
-      </a-button>
-      <a-button v-if="isAdding" shape="round" @click="isAdding = false">
-        Cancel
-      </a-button>
-    </div>
+      <template #footer>
+        <div class="card-list__footer no-drag">
+          <a-textarea
+            v-if="isAdding"
+            v-model="cardTitle"
+            class="add-card-input"
+            placeholder="Do something..."
+          />
+          <div class="column-actions">
+            <a-button type="primary" long shape="round" @click="createCard">
+              <template #icon><IconPlus v-if="!isAdding" /></template>
+              {{ isAdding ? "Confirm" : "Add Card" }}
+            </a-button>
+            <a-button v-if="isAdding" shape="round" @click="isAdding = false">
+              Cancel
+            </a-button>
+          </div>
+        </div>
+      </template>
+    </Draggable>
   </section>
 </template>

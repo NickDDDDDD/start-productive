@@ -39,6 +39,12 @@ const inboxStyle = computed(() => ({
   opacity: visibleSections.value.inbox ? 1 : 0,
   marginRight: visibleSections.value.inbox ? "16px" : 0,
 }));
+
+const searchStyle = computed(() => ({
+  flexGrow: board.kanbanFlexGrow + (visibleSections.value.taskGenerator ? 4 : 0),
+  flexShrink: 0,
+  flexBasis: `${(visibleSections.value.taskGenerator ? 16 : 0) + (visibleSections.value.inbox ? 280 : 0)}px`,
+}));
 </script>
 
 <template>
@@ -46,6 +52,7 @@ const inboxStyle = computed(() => ({
     <header class="top-bar">
       <a
         class="brand-link"
+        :style="panelStyle('links', 2)"
         href="https://portfolio.nixkode.com"
         target="_blank"
         rel="noopener noreferrer"
@@ -53,7 +60,9 @@ const inboxStyle = computed(() => ({
         <IconThunderbolt class="brand-link__icon" />
         <span>Nixkode</span>
       </a>
-      <SearchBar class="top-bar__search" />
+      <div class="top-bar__search" :style="searchStyle">
+        <SearchBar />
+      </div>
     </header>
 
     <section class="workspace">

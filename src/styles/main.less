@@ -25,6 +25,11 @@
   box-sizing: border-box;
 }
 
+::selection {
+  background: @accent;
+  color: #04130b;
+}
+
 html,
 body,
 #root {
@@ -80,24 +85,28 @@ button {
 .top-bar {
   display: flex;
   flex: 0 0 auto;
-  gap: 16px;
 
   &__search {
-    flex: 1 1 auto;
+    min-width: 0;
+
+    .search-bar {
+      width: 100%;
+    }
   }
 }
 
 .brand-link {
   display: inline-flex;
-  flex: 0 0 9%;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  min-width: 132px;
+  min-width: 0;
+  overflow: hidden;
   border-radius: @radius-pill;
   color: @text;
   font-weight: 700;
   text-decoration: none;
+  white-space: nowrap;
   transition: background 0.15s ease;
 
   &:hover {
@@ -138,6 +147,7 @@ button {
   gap: 8px;
 
   h2 {
+    flex: 1 1 auto;
     min-width: 0;
     margin: 0;
     overflow: hidden;
@@ -202,41 +212,99 @@ button {
   flex: 1 1 auto;
   flex-direction: column;
   gap: 8px;
+  overflow-x: hidden;
   overflow-y: auto;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+  }
 }
 
 .card-list {
   display: flex;
-  min-height: 16px;
-  flex: 0 1 auto;
+  min-height: 0;
+  flex: 1 1 auto;
   flex-direction: column;
   gap: 8px;
+  overflow-x: hidden;
   overflow-y: auto;
+  scrollbar-width: none;
+
+  > [data-draggable] {
+    order: 1;
+  }
+
+  &::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+  }
 }
 
-.link-card {
+.card-list--empty {
+  padding-top: 12px;
+}
+
+.card-list__footer {
+  display: flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  gap: 8px;
+  order: 2;
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+}
+
+.draggable-card {
   position: relative;
   display: grid;
   width: 100%;
-  aspect-ratio: 16 / 9;
+  max-width: 100%;
   flex: 0 0 auto;
-  grid-template-columns: 42px minmax(0, 1fr);
-  align-items: center;
-  gap: 10px;
+  overflow: hidden;
   border: 1px solid @panel-border;
-  border-radius: @radius-md;
-  background: @panel-bg;
   color: @text;
-  padding: 14px;
-  text-decoration: none;
-  box-shadow: 0 8px 18px rgba(41, 37, 36, 0.08);
-  transition:
-    background 0.15s ease,
-    transform 0.15s ease;
+  cursor: grab;
+  user-select: none;
+  transition: background 0.15s ease;
+
+  &:active {
+    cursor: grabbing;
+  }
 
   &:hover {
     border-color: @panel-border-strong;
     background: @panel-bg-strong;
+  }
+}
+
+.draggable-card--link {
+  min-height: 96px;
+  border-radius: @radius-md;
+  background: @panel-bg;
+  box-shadow: 0 8px 18px rgba(41, 37, 36, 0.08);
+}
+
+.link-card {
+  &__body {
+    display: grid;
+    width: 100%;
+    height: 100%;
+    grid-template-columns: 42px minmax(0, 1fr);
+    align-items: center;
+    gap: 10px;
+    color: inherit;
+    outline: none;
+    padding: 14px;
+    text-align: left;
+
+    &:focus-visible {
+      border-radius: @radius-md;
+      outline: 2px solid @accent;
+      outline-offset: -2px;
+    }
   }
 
   strong {
@@ -272,9 +340,7 @@ button {
   }
 }
 
-.link-card,
-.column,
-.task-card {
+.column {
   cursor: grab;
 
   &:active {
@@ -307,10 +373,10 @@ button {
   width: 264px;
   max-height: 100%;
   padding: 10px;
-  border: 1px solid @panel-border;
+  border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: @radius-md;
-  overflow-y: auto;
-  background: rgba(237, 239, 242, 0.035);
+  overflow: hidden;
+  background: rgba(237, 239, 242, 0.055);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.035);
 }
 
@@ -329,10 +395,16 @@ button {
 .column-header {
   flex: 0 0 auto;
   padding: 4px;
+  user-select: none;
 
   > h2 {
     flex: 1 1 auto;
     cursor: text;
+  }
+
+  .arco-input,
+  .arco-input-wrapper {
+    user-select: text;
   }
 }
 
@@ -362,19 +434,17 @@ button {
   resize: none;
 }
 
-.task-card {
-  position: relative;
-  display: grid;
+.draggable-card--task {
   min-height: 132px;
-  flex: 0 0 auto;
-  overflow: hidden;
-  border: 1px solid @panel-border;
   border-radius: @radius-sm;
-  background: rgba(237, 239, 242, 0.06);
+  background: rgba(237, 239, 242, 0.08);
+  backdrop-filter: blur(10px);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.035),
     0 6px 16px rgba(0, 0, 0, 0.14);
+}
 
+.task-card {
   &__stripe {
     position: absolute;
     top: 0;
@@ -420,14 +490,17 @@ button {
     display: flex;
     flex-wrap: wrap;
     gap: 4px;
+    cursor: pointer;
   }
 
   &__meta {
     display: flex;
-    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
     gap: 8px;
     margin-top: auto;
     color: @muted;
+    cursor: pointer;
     font-size: 12px;
 
     span {
@@ -435,6 +508,18 @@ button {
       align-items: center;
       gap: 4px;
     }
+  }
+
+  &__meta-left {
+    display: flex;
+    min-width: 0;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  &__comments {
+    margin-left: auto;
+    white-space: nowrap;
   }
 
   &__menu {
@@ -615,13 +700,57 @@ button {
 }
 
 .detail-fields {
-  max-width: 420px;
+  width: 100%;
 
   .arco-checkbox,
   .arco-checkbox-label {
     color: @text-soft;
   }
 }
+
+.detail-fields__grid {
+  display: grid;
+  width: 100%;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px 16px;
+}
+
+.detail-fields__control {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.detail-fields__label {
+  color: @muted;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.detail-fields__important {
+  grid-column: 1 / -1;
+}
+
+.detail-fields__schedule {
+  grid-column: 1;
+}
+
+.detail-fields__workload {
+  grid-column: 2;
+}
+
+.detail-fields__schedule > :not(.detail-fields__label) {
+  width: 100%;
+  min-width: 0;
+}
+
+.detail-fields__workload .workload-row > * {
+  min-width: 0;
+  flex: 1 1 0;
+}
+
 
 .arco-checkbox-icon-hover::before,
 .arco-checkbox:hover .arco-checkbox-icon-hover::before,
@@ -643,6 +772,11 @@ button {
 .arco-checkbox-indeterminate .arco-checkbox-icon {
   border-color: @accent;
   background-color: @accent;
+}
+
+.arco-checkbox-checked .arco-checkbox-icon-check,
+.arco-checkbox-indeterminate .arco-checkbox-icon-check {
+  color: #04130b;
 }
 
 .card-detail__footer {
@@ -907,6 +1041,59 @@ button {
   background-color: @overlay-l2;
   border-color: @accent-strong;
   box-shadow: 0 0 0 3px rgba(50, 240, 140, 0.12);
+}
+
+.arco-picker-disabled,
+.arco-picker-disabled:hover,
+.arco-picker-disabled:focus-within {
+  border-color: @panel-border;
+  background-color: @overlay-l1;
+  box-shadow: none;
+  opacity: 1;
+
+  .arco-picker-input input,
+  .arco-picker-input,
+  input,
+  .arco-picker-suffix-icon {
+    color: @muted-weak !important;
+    -webkit-text-fill-color: @muted-weak;
+  }
+
+  .arco-picker-input input::placeholder,
+  input::placeholder {
+    color: @muted-weak !important;
+  }
+}
+
+.arco-input-number-step {
+  background: @surface-raised;
+}
+
+.arco-input-number-step-button,
+.arco-input-number-mode-embed .arco-input-number-step .arco-input-number-step-button {
+  border-color: transparent;
+  background-color: @overlay-l1;
+  color: @muted;
+
+  &:hover {
+    border-color: transparent;
+    background-color: @overlay-l2;
+    color: @text;
+  }
+
+  &:active {
+    border-color: transparent;
+    background-color: @overlay-l3;
+    color: @text;
+  }
+
+  &:disabled,
+  &:disabled:hover,
+  &:disabled:active {
+    border-color: transparent;
+    background-color: @overlay-l1;
+    color: @muted-weak;
+  }
 }
 
 .arco-btn-secondary,
