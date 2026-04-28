@@ -8,6 +8,7 @@ import {
 } from "@arco-design/web-vue/es/icon";
 import { useBoardStore } from "../../stores/board";
 import Card from "./Card.vue";
+import CardDetail from "./CardDetail.vue";
 
 const props = defineProps({
   column: { type: Object, required: true },
@@ -17,7 +18,6 @@ const board = useBoardStore();
 const isAdding = ref(false);
 const isEditing = ref(false);
 const draftTitle = ref(props.column.title);
-const cardTitle = ref("");
 const titleInputRef = ref(null);
 
 const cardsModel = computed({
@@ -62,14 +62,9 @@ onBeforeUnmount(() => {
 });
 
 function createCard() {
-  if (!isAdding.value) {
-    isAdding.value = true;
-    return;
-  }
-  board.createCard(props.column.id, cardTitle.value);
-  cardTitle.value = "";
-  isAdding.value = false;
+  isAdding.value = true;
 }
+
 </script>
 
 <template>
@@ -125,24 +120,18 @@ function createCard() {
 
       <template #footer>
         <div class="card-list__footer no-drag">
-          <a-textarea
-            v-if="isAdding"
-            v-model="cardTitle"
-            class="add-card-input"
-            placeholder="Do something..."
-          />
-          <div class="column-actions">
-            <a-button type="primary" long shape="round" @click="createCard">
-              <template #icon><IconPlus v-if="!isAdding" /></template>
-              {{ isAdding ? "Confirm" : "Add Card" }}
-            </a-button>
-            <a-button v-if="isAdding" shape="round" @click="isAdding = false">
-              Cancel
-            </a-button>
-          </div>
+          <a-button type="primary" long shape="round" @click="createCard">
+            <template #icon><IconPlus /></template>
+            Add Card
+          </a-button>
         </div>
       </template>
     </Draggable>
+
+    <CardDetail
+      v-model:visible="isAdding"
+      :column-id="column.id"
+    />
   </section>
 </template>
 
@@ -244,17 +233,4 @@ function createCard() {
   order: 2;
 }
 
-.add-card-input {
-  flex: 0 0 auto;
-  min-height: 96px;
-
-  :deep(textarea) {
-    resize: none;
-  }
-}
-
-.column-actions {
-  display: flex;
-  gap: 8px;
-}
 </style>

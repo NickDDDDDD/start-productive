@@ -1,5 +1,5 @@
 <script setup>
-import { computed, reactive, ref, watch } from "vue";
+import { computed, onBeforeUnmount, reactive, ref, watch } from "vue";
 import {
   IconCheckSquare,
   IconDelete,
@@ -16,7 +16,8 @@ import {
 } from "../../utils/cardPriority";
 
 const props = defineProps({
-  card: { type: Object, required: true },
+  card: { type: Object, default: null },
+  columnId: { type: String, default: "" },
   visible: { type: Boolean, default: false },
 });
 
@@ -36,11 +37,19 @@ const draft = reactive({
 });
 const newChecklistText = ref("");
 const newCommentText = ref("");
+const WORKLOAD_STEP = 0.25;
+const MIN_WORKLOAD_AMOUNT = 0.25;
+const workloadMotion = ref("");
+let workloadMotionTimer = null;
 
 const isOpen = computed({
   get: () => props.visible,
   set: (value) => emit("update:visible", value),
 });
+const isCreating = computed(() => !props.card);
+const drawerTitle = computed(() =>
+  isCreating.value ? "Create Card" : "Card Details",
+);
 
 function normalizeChecklistItems(items) {
   if (!Array.isArray(items)) return [];
@@ -64,14 +73,15 @@ function normalizeComments(comments) {
 }
 
 function resetDraft() {
-  const meta = normalizeCardMeta(props.card);
-  draft.title = props.card.title || "";
+  const source = props.card || {};
+  const meta = normalizeCardMeta(source);
+  draft.title = source.title || "";
   draft.description =
-    typeof props.card.description === "string"
-      ? props.card.description
+    typeof source.description === "string"
+      ? source.description
       : DEFAULT_CARD_META.description;
-  draft.checklistItems = normalizeChecklistItems(props.card.checklistItems);
-  draft.comments = normalizeComments(props.card.comments);
+  draft.checklistItems = normalizeChecklistItems(source.checklistItems);
+  draft.comments = normalizeComments(source.comments);
   draft.important = meta.important;
   draft.dueDate = meta.dueDate;
   draft.dueTime = meta.dueTime;
@@ -85,12 +95,13 @@ function close() {
   isOpen.value = false;
 }
 
-function save() {
+function buildCardPayload() {
   const workloadAmount = Number(draft.workloadAmount);
   const workloadUnit = draft.workloadUnit === "days" ? "days" : "hours";
   const safeWorkloadAmount =
     Number.isFinite(workloadAmount) && workloadAmount > 0 ? workloadAmount : 1;
-  board.updateCard(props.card.id, {
+
+  return {
     title: draft.title.trim() || "Untitled",
     description: draft.description,
     checklistItems: draft.checklistItems
@@ -113,7 +124,45 @@ function save() {
     workloadAmount: safeWorkloadAmount,
     workloadUnit,
     workloadHours: safeWorkloadAmount * WORKLOAD_UNIT_HOURS[workloadUnit],
+  };
+}
+
+function save() {
+  const payload = buildCardPayload();
+  if (props.card?.id) {
+    board.updateCard(props.card.id, payload);
+  } else {
+    board.createCard(props.columnId || "inbox", payload);
+  }
+  close();
+}
+
+function handleWorkloadWheel(event) {
+  const current = Number(draft.workloadAmount);
+  const base = Number.isFinite(current) ? current : DEFAULT_CARD_META.workloadAmount;
+  const direction = event.deltaY < 0 ? 1 : -1;
+  const nextValue = Math.max(
+    MIN_WORKLOAD_AMOUNT,
+    base + direction * WORKLOAD_STEP,
+  );
+  draft.workloadAmount = Number(nextValue.toFixed(2));
+  triggerWorkloadMotion(direction > 0 ? "up" : "down");
+}
+
+function triggerWorkloadMotion(direction) {
+  window.clearTimeout(workloadMotionTimer);
+  workloadMotion.value = "";
+  requestAnimationFrame(() => {
+    workloadMotion.value = `workload-amount--${direction}`;
+    workloadMotionTimer = window.setTimeout(() => {
+      workloadMotion.value = "";
+    }, 220);
   });
+}
+
+function deleteCard() {
+  if (!props.card?.id) return;
+  board.deleteCard(props.card.id);
   close();
 }
 
@@ -149,15 +198,21 @@ watch(
   },
   { immediate: true },
 );
+
+onBeforeUnmount(() => {
+  window.clearTimeout(workloadMotionTimer);
+});
 </script>
 
 <template>
-  <a-modal
+  <a-drawer
     v-model:visible="isOpen"
-    width="920px"
-    title="Card Details"
+    class="card-detail-drawer"
+    body-class="card-detail-drawer__body"
+    placement="right"
+    width="560px"
+    :title="drawerTitle"
     unmount-on-close
-    modal-class="card-detail-modal"
     @cancel="resetDraft"
   >
     <div class="card-detail">
@@ -197,11 +252,17 @@ watch(
           <div class="detail-fields__control detail-fields__workload">
             <span class="detail-fields__label">Workload</span>
             <div class="workload-row">
-              <a-input-number
-                v-model="draft.workloadAmount"
-                :min="0.25"
-                :step="0.25"
-              />
+              <div
+                class="workload-amount"
+                :class="workloadMotion"
+                @wheel.prevent="handleWorkloadWheel"
+              >
+                <a-input-number
+                  v-model="draft.workloadAmount"
+                  :min="MIN_WORKLOAD_AMOUNT"
+                  :step="WORKLOAD_STEP"
+                />
+              </div>
               <a-select v-model="draft.workloadUnit">
                 <a-option value="hours">Hours</a-option>
                 <a-option value="days">Days</a-option>
@@ -288,25 +349,29 @@ watch(
     <template #footer>
       <div class="card-detail__footer">
         <a-button
+          v-if="!isCreating"
           class="danger-button"
           type="text"
-          @click="board.deleteCard(card.id); close()"
+          @click="deleteCard"
         >
           Delete
         </a-button>
         <div class="card-detail__footer-actions">
           <a-button @click="close">Cancel</a-button>
-          <a-button type="primary" @click="save">Save</a-button>
+          <a-button type="primary" @click="save">
+            {{ isCreating ? "Create" : "Save" }}
+          </a-button>
         </div>
       </div>
     </template>
-  </a-modal>
+  </a-drawer>
 </template>
 
 <style scoped lang="less">
 .card-detail {
   display: flex;
-  max-height: calc(88vh - 150px);
+  height: 100%;
+  max-height: none;
   flex-direction: column;
   gap: 18px;
   overflow-y: auto;
@@ -314,8 +379,23 @@ watch(
   padding-right: 4px;
 }
 
-:global(.card-detail-modal .arco-modal-body) {
-  max-height: calc(88vh - 120px);
+:global(.card-detail-drawer .arco-drawer) {
+  max-width: calc(100vw - 32px);
+  border-left: 1px solid var(--app-panel-border);
+  background: var(--app-surface);
+  color: var(--app-text);
+}
+
+:global(.card-detail-drawer .arco-drawer-header),
+:global(.card-detail-drawer .arco-drawer-footer) {
+  border-color: var(--app-panel-border);
+}
+
+:global(.card-detail-drawer .arco-drawer-title) {
+  color: var(--app-text);
+}
+
+:global(.card-detail-drawer__body) {
   overflow: hidden;
 }
 
@@ -433,9 +513,68 @@ watch(
   gap: 8px;
 }
 
+.workload-amount {
+  min-width: 0;
+  flex: 1 1 0;
+
+  :deep(.arco-input-number) {
+    transition:
+      border-color 0.16s ease,
+      background-color 0.16s ease,
+      box-shadow 0.16s ease,
+      transform 0.16s ease;
+  }
+}
+
+.workload-amount--up :deep(.arco-input-number) {
+  animation: workload-step-up 0.22s ease-out;
+}
+
+.workload-amount--down :deep(.arco-input-number) {
+  animation: workload-step-down 0.22s ease-out;
+}
+
 .detail-fields__workload .workload-row > * {
   min-width: 0;
   flex: 1 1 0;
+}
+
+@keyframes workload-step-up {
+  0% {
+    transform: translateY(0);
+    box-shadow: 0 0 0 0 rgba(50, 240, 140, 0);
+  }
+
+  35% {
+    transform: translateY(-2px);
+    border-color: var(--app-accent-strong);
+    background-color: var(--app-overlay-l2);
+    box-shadow: 0 0 0 3px rgba(50, 240, 140, 0.12);
+  }
+
+  100% {
+    transform: translateY(0);
+    box-shadow: 0 0 0 0 rgba(50, 240, 140, 0);
+  }
+}
+
+@keyframes workload-step-down {
+  0% {
+    transform: translateY(0);
+    box-shadow: 0 0 0 0 rgba(50, 240, 140, 0);
+  }
+
+  35% {
+    transform: translateY(2px);
+    border-color: var(--app-accent-strong);
+    background-color: var(--app-overlay-l2);
+    box-shadow: 0 0 0 3px rgba(50, 240, 140, 0.12);
+  }
+
+  100% {
+    transform: translateY(0);
+    box-shadow: 0 0 0 0 rgba(50, 240, 140, 0);
+  }
 }
 
 :deep(.arco-checkbox-icon-hover::before),
@@ -487,5 +626,6 @@ watch(
 .card-detail__footer-actions {
   display: flex;
   gap: 8px;
+  margin-left: auto;
 }
 </style>

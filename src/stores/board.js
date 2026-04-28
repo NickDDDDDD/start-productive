@@ -37,12 +37,17 @@ function normalizeState(state = {}) {
   };
 }
 
-function nextCard(title, columnId) {
+function nextCard(payload, columnId) {
+  const patch =
+    typeof payload === "string" ? { title: payload } : payload && typeof payload === "object" ? payload : {};
+  const title = typeof patch.title === "string" ? patch.title.trim() : "";
+
   return {
     id: nanoid(),
-    columnId,
-    title: title?.trim() || "Untitled",
     ...DEFAULT_CARD_META,
+    ...patch,
+    columnId,
+    title: title || "Untitled",
   };
 }
 
@@ -140,8 +145,8 @@ export const useBoardStore = defineStore("board", {
       this.cards = this.cards.filter((card) => card.columnId !== id);
     },
 
-    createCard(columnId, title) {
-      const card = nextCard(title, columnId);
+    createCard(columnId, payload) {
+      const card = nextCard(payload, columnId);
       if (columnId === "inbox") {
         const inboxCards = this.cards.filter((item) => item.columnId === "inbox");
         const otherCards = this.cards.filter((item) => item.columnId !== "inbox");

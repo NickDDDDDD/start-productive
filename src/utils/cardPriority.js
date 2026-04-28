@@ -19,6 +19,7 @@ export const WORKLOAD_UNIT_HOURS = {
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
 const MS_PER_HOUR = 60 * 60 * 1000;
+const HOURS_PER_DAY = 24;
 
 export function normalizeCardMeta(card) {
   const workloadUnit =
@@ -78,8 +79,13 @@ export function getCardPriority(card, now = new Date()) {
     ? 0
     : Math.max(1, Math.ceil(msRemaining / MS_PER_DAY));
   const remainingHours = isOverdue ? 0 : msRemaining / MS_PER_HOUR;
+  const remainingWorkloadUnits =
+    meta.workloadUnit === "days"
+      ? remainingHours / HOURS_PER_DAY
+      : remainingHours;
   const urgent =
-    isOverdue || meta.workloadHours * URGENCY_WORKLOAD_BUFFER >= remainingHours;
+    isOverdue ||
+    meta.workloadAmount * URGENCY_WORKLOAD_BUFFER >= remainingWorkloadUnits;
 
   let key = "notImportantNotUrgent";
   if (meta.important && urgent) key = "importantUrgent";
