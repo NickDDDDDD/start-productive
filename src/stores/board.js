@@ -55,6 +55,7 @@ export const useBoardStore = defineStore("board", {
   state: () => ({
     ...createDefaultState(),
     searchTerm: "",
+    cardDrawerOpen: false,
     hydrated: false,
   }),
 
@@ -122,6 +123,10 @@ export const useBoardStore = defineStore("board", {
 
     setSearchTerm(value) {
       this.searchTerm = value;
+    },
+
+    setCardDrawerOpen(value) {
+      this.cardDrawerOpen = Boolean(value);
     },
 
     toggleSection(section) {

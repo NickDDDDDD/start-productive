@@ -1,5 +1,5 @@
 <script setup>
-import { reactive, ref } from "vue";
+import { reactive, ref, watch } from "vue";
 import { storeToRefs } from "pinia";
 import Draggable from "vuedraggable";
 import { IconClose, IconEdit, IconPlus } from "@arco-design/web-vue/es/icon";
@@ -17,11 +17,20 @@ function resetForm() {
   form.url = "";
 }
 
+function setAddingVisible(visible) {
+  isAdding.value = visible;
+  if (!visible) resetForm();
+}
+
 function addLink() {
   board.createLink(form);
   resetForm();
   isAdding.value = false;
 }
+
+watch(isEdit, (editing) => {
+  if (!editing) setAddingVisible(false);
+});
 </script>
 
 <template>
@@ -40,38 +49,44 @@ function addLink() {
       </a-button>
     </header>
 
-    <a-button
-      v-if="isEdit && !isAdding"
-      type="primary"
-      long
-      @click="isAdding = true"
+    <a-popover
+      v-if="isEdit"
+      v-model:popup-visible="isAdding"
+      trigger="click"
+      position="rt"
+      content-class="link-create-popover"
+      @popup-visible-change="setAddingVisible"
     >
-      <template #icon><IconPlus /></template>
-      Add Link
-    </a-button>
+      <a-button type="primary" long class="no-drag">
+        <template #icon><IconPlus /></template>
+        Add Link
+      </a-button>
 
-    <a-modal
-      v-model:visible="isAdding"
-      title="Add Link"
-      width="420px"
-      modal-class="link-modal"
-      @cancel="resetForm"
-    >
-      <a-form class="link-form" layout="vertical" :model="form">
-        <a-form-item field="name" label="Name">
-          <a-input v-model="form.name" placeholder="Link name" />
-        </a-form-item>
-        <a-form-item field="url" label="URL">
-          <a-input v-model="form.url" placeholder="https://example.com" />
-        </a-form-item>
-      </a-form>
-      <template #footer>
-        <div class="link-modal__footer">
-          <a-button @click="isAdding = false; resetForm()">Cancel</a-button>
-          <a-button type="primary" @click="addLink">Confirm</a-button>
+      <template #content>
+        <div class="link-create-panel">
+          <a-form class="link-form" layout="vertical" :model="form">
+            <a-form-item field="name" label="Name">
+              <a-input
+                v-model="form.name"
+                placeholder="Link name"
+                @keyup.enter="addLink"
+              />
+            </a-form-item>
+            <a-form-item field="url" label="URL">
+              <a-input
+                v-model="form.url"
+                placeholder="https://example.com"
+                @keyup.enter="addLink"
+              />
+            </a-form-item>
+          </a-form>
+          <div class="link-create-panel__footer">
+            <a-button @click="setAddingVisible(false)">Cancel</a-button>
+            <a-button type="primary" @click="addLink">Confirm</a-button>
+          </div>
         </div>
       </template>
-    </a-modal>
+    </a-popover>
 
     <Draggable
       v-model="links"
@@ -105,17 +120,29 @@ function addLink() {
 }
 
 .link-form {
-  border: 1px solid var(--app-panel-border);
-  border-radius: var(--app-radius-sm);
   background: transparent;
   padding: 0;
 }
 
-.link-modal__footer {
+.link-create-panel {
+  width: min(360px, calc(100vw - 48px));
+}
+
+.link-create-panel__footer {
   display: flex;
   justify-content: flex-end;
   gap: 8px;
   width: 100%;
+}
+
+:global(.link-create-popover) {
+  border: 1px solid var(--app-panel-border);
+  border-radius: var(--app-radius-md);
+  background: rgba(17, 18, 20, 0.98);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.035),
+    0 18px 42px rgba(0, 0, 0, 0.34);
+  backdrop-filter: blur(18px);
 }
 
 .links-list {

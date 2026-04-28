@@ -1,8 +1,8 @@
 <script setup>
-import { computed, onMounted } from "vue";
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { storeToRefs } from "pinia";
 import Draggable from "vuedraggable";
-import { IconThunderbolt } from "@arco-design/web-vue/es/icon";
+import { IconPlus, IconThunderbolt } from "@arco-design/web-vue/es/icon";
 import { useBoardStore } from "../stores/board";
 import SearchBar from "../components/search/SearchBar.vue";
 import Links from "../components/links/Links.vue";
@@ -12,9 +12,26 @@ import Column from "../components/kanban/Column.vue";
 
 const board = useBoardStore();
 const { columns, visibleSections } = storeToRefs(board);
+const kanbanShellRef = ref(null);
+const kanbanBoardRef = ref(null);
+const kanbanTrackRef = ref(null);
+const isDraggingColumn = ref(false);
+const isShiftingKanbanLayout = ref(false);
+const closedTrackOffset = ref(0);
+let kanbanResizeObserver = null;
+let kanbanLayoutTimer = null;
 
 onMounted(() => {
   board.initPersistence();
+  kanbanResizeObserver = new ResizeObserver(updateClosedTrackOffset);
+  if (kanbanBoardRef.value) kanbanResizeObserver.observe(kanbanBoardRef.value);
+  if (kanbanTrackRef.value) kanbanResizeObserver.observe(kanbanTrackRef.value);
+  nextTick(updateClosedTrackOffset);
+});
+
+onBeforeUnmount(() => {
+  kanbanResizeObserver?.disconnect();
+  window.clearTimeout(kanbanLayoutTimer);
 });
 
 const kanbanStyle = computed(() => ({
@@ -45,6 +62,61 @@ const searchStyle = computed(() => ({
   flexShrink: 0,
   flexBasis: `${(visibleSections.value.taskGenerator ? 16 : 0) + (visibleSections.value.inbox ? 280 : 0)}px`,
 }));
+
+const kanbanTrackStyle = computed(() => ({
+  marginLeft: board.cardDrawerOpen ? "0px" : `${closedTrackOffset.value}px`,
+}));
+
+function updateClosedTrackOffset() {
+  const boardWidth = kanbanBoardRef.value?.clientWidth || 0;
+  const trackWidth = kanbanTrackRef.value?.scrollWidth || 0;
+  closedTrackOffset.value = Math.max(0, (boardWidth - trackWidth) / 2);
+}
+
+function startKanbanLayoutShift() {
+  if (isDraggingColumn.value) return;
+  window.clearTimeout(kanbanLayoutTimer);
+  isShiftingKanbanLayout.value = true;
+  kanbanLayoutTimer = window.setTimeout(() => {
+    isShiftingKanbanLayout.value = false;
+  }, 260);
+}
+
+function createColumn() {
+  startKanbanLayoutShift();
+  board.createColumn();
+  nextTick(() => {
+    updateClosedTrackOffset();
+    scrollKanbanToEnd();
+  });
+}
+
+function scrollKanbanToEnd() {
+  requestAnimationFrame(() => {
+    const shell = kanbanShellRef.value;
+    if (!shell || shell.scrollWidth <= shell.clientWidth) return;
+    shell.scrollTo({
+      left: shell.scrollWidth - shell.clientWidth,
+      behavior: "smooth",
+    });
+  });
+}
+
+watch(
+  [columns, visibleSections],
+  () => {
+    nextTick(updateClosedTrackOffset);
+  },
+  { deep: true },
+);
+
+watch(
+  () => board.cardDrawerOpen,
+  () => {
+    startKanbanLayoutShift();
+    nextTick(updateClosedTrackOffset);
+  },
+);
 </script>
 
 <template>
@@ -78,32 +150,48 @@ const searchStyle = computed(() => ({
         <Inbox />
       </aside>
 
-      <section class="kanban-shell" :style="kanbanStyle">
-        <div class="kanban-board">
-          <Draggable
-            v-model="columns"
-            class="kanban-columns"
-            item-key="id"
-            direction="horizontal"
-            :animation="180"
-            easing="cubic-bezier(0.2, 0, 0, 1)"
-            :force-fallback="true"
-            :fallback-on-body="true"
-            fallback-class="drag-fallback"
-            filter="input,textarea,select,button,.arco-dropdown,.arco-modal,.arco-drawer,.no-drag"
-            :prevent-on-filter="false"
-            ghost-class="drag-ghost"
-            chosen-class="drag-chosen"
-            drag-class="drag-active"
+      <section ref="kanbanShellRef" class="kanban-shell" :style="kanbanStyle">
+        <div
+          ref="kanbanBoardRef"
+          class="kanban-board"
+        >
+          <div
+            ref="kanbanTrackRef"
+            class="kanban-track"
+            :class="{
+              'kanban-track--layout-shifting': isShiftingKanbanLayout,
+              'kanban-track--dragging': isDraggingColumn,
+            }"
+            :style="kanbanTrackStyle"
           >
-            <template #item="{ element }">
-              <Column :column="element" />
-            </template>
-          </Draggable>
+            <Draggable
+              v-model="columns"
+              class="kanban-columns"
+              item-key="id"
+              direction="horizontal"
+              :animation="180"
+              easing="cubic-bezier(0.2, 0, 0, 1)"
+              :force-fallback="true"
+              :fallback-on-body="true"
+              fallback-class="drag-fallback"
+              filter="input,textarea,select,button,.arco-dropdown,.arco-modal,.arco-drawer,.no-drag"
+              :prevent-on-filter="false"
+              ghost-class="drag-ghost"
+              chosen-class="drag-chosen"
+              drag-class="drag-active"
+              @start="isDraggingColumn = true"
+              @end="isDraggingColumn = false"
+            >
+              <template #item="{ element }">
+                <Column :column="element" />
+              </template>
+            </Draggable>
 
-          <a-button type="primary" shape="round" @click="board.createColumn">
-            Add Column
-          </a-button>
+            <a-button type="primary" shape="round" @click="createColumn">
+              <template #icon><IconPlus /></template>
+              Add Column
+            </a-button>
+          </div>
         </div>
       </section>
     </section>
@@ -173,24 +261,29 @@ const searchStyle = computed(() => ({
 .brand-link {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 8px;
   min-width: 0;
   overflow: hidden;
-  border-radius: var(--app-radius-pill);
+  border-radius: var(--app-radius-sm);
   color: var(--app-text);
   font-weight: 700;
   text-decoration: none;
   white-space: nowrap;
-  transition: background 0.15s ease;
+  transition: color 0.15s ease;
 
   &:hover {
-    background: var(--app-panel-bg-strong);
+    color: var(--app-accent);
   }
 
   &__icon {
     color: var(--app-accent-strong);
     font-size: 28px;
+    transition: color 0.15s ease;
+  }
+
+  &:hover &__icon {
+    color: var(--app-accent);
   }
 }
 
@@ -225,11 +318,27 @@ const searchStyle = computed(() => ({
 
 .kanban-board {
   display: flex;
-  width: 100%;
+  width: max-content;
   min-width: 100%;
   height: 100%;
-  gap: 16px;
   align-items: flex-start;
+  justify-content: flex-start;
+}
+
+.kanban-track {
+  display: flex;
+  height: 100%;
+  align-items: flex-start;
+  gap: 16px;
+  will-change: margin-left;
+}
+
+.kanban-track--layout-shifting {
+  transition: margin-left 0.24s ease;
+}
+
+.kanban-track--dragging {
+  transition: none;
 }
 
 .kanban-columns {

@@ -193,14 +193,20 @@ function formatCommentTime(value) {
 
 watch(
   () => props.visible,
-  (visible) => {
-    if (visible) resetDraft();
+  (visible, previousVisible) => {
+    if (visible) {
+      resetDraft();
+      board.setCardDrawerOpen(true);
+      return;
+    }
+    if (previousVisible) board.setCardDrawerOpen(false);
   },
   { immediate: true },
 );
 
 onBeforeUnmount(() => {
   window.clearTimeout(workloadMotionTimer);
+  if (props.visible) board.setCardDrawerOpen(false);
 });
 </script>
 
