@@ -5,6 +5,7 @@ import Draggable from "vuedraggable";
 import { IconPlus, IconThunderbolt } from "@arco-design/web-vue/es/icon";
 import { useBoardStore } from "../stores/board";
 import SearchBar from "../components/search/SearchBar.vue";
+import DataPortability from "../components/data/DataPortability.vue";
 import Links from "../components/links/Links.vue";
 import TaskGenerator from "../components/task-generator/TaskGenerator.vue";
 import Inbox from "../components/kanban/Inbox.vue";
@@ -135,6 +136,9 @@ watch(
       <div class="top-bar__search" :style="searchStyle">
         <SearchBar />
       </div>
+      <div class="top-bar__tools">
+        <DataPortability />
+      </div>
     </header>
 
     <section class="workspace">
@@ -247,6 +251,7 @@ watch(
 
 .top-bar {
   display: flex;
+  gap: 8px;
   flex: 0 0 auto;
 
   &__search {
@@ -255,6 +260,12 @@ watch(
     .search-bar {
       width: 100%;
     }
+  }
+
+  &__tools {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
   }
 }
 

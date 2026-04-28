@@ -9,7 +9,7 @@
 - **Quick-access links:** add, organize, and open your most used sites in one click.
 - **Tasks / To-dos:** track daily items right on the new tab.
 - **Favicons:** links show a cached favicon when Chrome has one available, with an initial-letter fallback.
-- **Local-first:** data is stored locally (Chrome Storage / `localStorage`).
+- **Local-first:** core data is stored locally in IndexedDB through Dexie.
 
 ---
 
@@ -87,47 +87,16 @@
 
 ---
 
-## 💾 Data storage & backups (important)
+## 💾 Data storage & backups
 
-> **Heads-up:** The app currently uses **Chrome’s Storage / `localStorage`**. During development or when **reloading the extension**, data may be lost if initialization overwrites storage or if full-object writes are used without merging. We may adopt a more robust persistence approach later.
-> **Please back up your data.**
+Core board data is stored in **IndexedDB** through **Dexie**. Links, columns, cards,
+visibility settings, and import backups live in separate object stores so large
+updates can be written transactionally.
 
-### Manual backup (temporary approach)
-
-Replace `APP_STATE_KEY` with your actual key constant.
-
-**If using `chrome.storage.local`:**
-
-```js
-// Read backup
-chrome.storage.local.get(['APP_STATE_KEY'], (res) => {
-  const json = JSON.stringify(res.APP_STATE_KEY || {}, null, 2);
-  console.log(json); // copy this JSON somewhere safe
-});
-
-// Restore from backup
-const data = /* your backed-up JSON object */;
-chrome.storage.local.set({ APP_STATE_KEY: data });
-```
-
-**If using `localStorage`:**
-
-```js
-// Read backup
-const json = localStorage.getItem("APP_STATE_KEY");
-console.log(json);
-
-// Restore from backup
-localStorage.setItem("APP_STATE_KEY", jsonString);
-```
-
-**Recommended:** add in-app **Export / Import** (download/upload JSON) so users don’t need DevTools.
-
-### Developer tips to avoid accidental loss
-
-- **Partial merge on save:** `next = { ...prev, ...partial }` instead of overwriting the whole object.
-- **Careful init:** only write defaults when storage is empty—don’t clobber existing saves.
-- **Debounce & subscribe:** throttle writes and merge in updates from other tabs to prevent stale overwrites.
+Use the in-app **Export Excel** action to create a portable backup. **Import Excel**
+parses the workbook first, shows a preview, and lets you either merge records by
+`id` or replace all current data. Replace operations create an IndexedDB backup
+before writing the imported workbook.
 
 ---
 
@@ -146,10 +115,10 @@ npm run preview  # preview the build (new-tab override still requires loading as
 - **Bundle is large. What can I do?**
   Arco is currently registered globally for simpler migration. Switch to on-demand imports later if bundle size becomes important.
 - **Data disappeared after reloading the extension.**
-  Please back up (see above). During development, full overwrites or default initialization can wipe prior data. Use partial merges and export/import.
+  Export an Excel backup regularly. Core data now lives in IndexedDB, while Excel import/export is the supported backup and restore path.
 
 ---
 
 ## ⚠️ Disclaimer
 
-**Current storage uses Chrome’s Storage. Data may be lost when reloading the extension in development. We plan to adopt a more robust persistence approach in the future. Please back up your data regularly.**
+Core data is local to the browser profile. Excel export/import is the supported way to move or back up data.

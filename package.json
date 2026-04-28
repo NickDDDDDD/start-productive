@@ -11,6 +11,8 @@
   },
   "dependencies": {
     "@arco-design/web-vue": "^2.57.0",
+    "dexie": "^4.4.2",
+    "exceljs": "^4.4.0",
     "nanoid": "^3.3.11",
     "pinia": "^3.0.3",
     "sortablejs": "^1.15.6",

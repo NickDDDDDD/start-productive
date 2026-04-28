@@ -1,41 +1,23 @@
 import { defineStore } from "pinia";
 import { nanoid } from "nanoid";
 import {
-  DEFAULT_VISIBLE_SECTIONS,
   createDefaultState,
-  loadState,
-  saveState,
-  subscribeState,
-} from "../utils/storage";
+  normalizeState,
+  toPlainState,
+} from "../utils/boardState";
+import {
+  initializeBoardState,
+  loadBoardState,
+  mergeBoardState,
+  replaceBoardState,
+  saveBoardState,
+  subscribeBoardState,
+} from "../data/boardRepository";
 import { DEFAULT_CARD_META } from "../utils/cardPriority";
 
 let persistenceStarted = false;
 let saveTimer = null;
 let applyingExternalState = false;
-
-function toPlainState(state) {
-  return JSON.parse(
-    JSON.stringify({
-      columns: state.columns,
-      cards: state.cards,
-      links: state.links,
-      visibleSections: state.visibleSections,
-    }),
-  );
-}
-
-function normalizeState(state = {}) {
-  const defaults = createDefaultState();
-  return {
-    columns: Array.isArray(state.columns) ? state.columns : defaults.columns,
-    cards: Array.isArray(state.cards) ? state.cards : defaults.cards,
-    links: Array.isArray(state.links) ? state.links : defaults.links,
-    visibleSections: {
-      ...DEFAULT_VISIBLE_SECTIONS,
-      ...(state.visibleSections || {}),
-    },
-  };
-}
 
 function nextCard(payload, columnId) {
   const patch =
@@ -91,7 +73,7 @@ export const useBoardStore = defineStore("board", {
 
   actions: {
     async hydrate() {
-      const loaded = normalizeState(await loadState());
+      const loaded = normalizeState(await loadBoardState());
       applyingExternalState = true;
       this.$patch({ ...loaded, hydrated: true });
       applyingExternalState = false;
@@ -100,12 +82,13 @@ export const useBoardStore = defineStore("board", {
     async initPersistence() {
       if (persistenceStarted) return;
       persistenceStarted = true;
+      await initializeBoardState();
       await this.hydrate();
 
-      subscribeState((nextState) => {
+      subscribeBoardState((nextState) => {
         if (!nextState) return;
         applyingExternalState = true;
-        this.$patch(normalizeState(nextState));
+        this.$patch({ ...normalizeState(nextState), hydrated: true });
         applyingExternalState = false;
       });
 
@@ -114,11 +97,27 @@ export const useBoardStore = defineStore("board", {
           if (!state.hydrated || applyingExternalState) return;
           clearTimeout(saveTimer);
           saveTimer = setTimeout(() => {
-            saveState(toPlainState(state));
+            saveBoardState(toPlainState(state));
           }, 200);
         },
         { detached: true, deep: true },
       );
+    },
+
+    toPortableState() {
+      return toPlainState(this);
+    },
+
+    async replaceImportedState(state) {
+      clearTimeout(saveTimer);
+      await replaceBoardState(normalizeState(state), { backup: true });
+      await this.hydrate();
+    },
+
+    async mergeImportedState(state) {
+      clearTimeout(saveTimer);
+      await mergeBoardState(normalizeState(state));
+      await this.hydrate();
     },
 
     setSearchTerm(value) {
