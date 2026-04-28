@@ -83,3 +83,58 @@ watch(
     </a-button>
   </DraggableCard>
 </template>
+
+<style scoped lang="less">
+.link-card {
+  &__body {
+    display: grid;
+    width: 100%;
+    height: 100%;
+    grid-template-columns: 42px minmax(0, 1fr);
+    align-items: center;
+    gap: 10px;
+    color: inherit;
+    outline: none;
+    padding: 14px;
+    text-align: left;
+
+    &:focus-visible {
+      border-radius: var(--app-radius-md);
+      outline: 2px solid var(--app-accent);
+      outline-offset: -2px;
+    }
+  }
+
+  strong {
+    min-width: 0;
+    overflow: hidden;
+    font-size: 14px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__icon {
+    display: grid;
+    width: 40px;
+    height: 40px;
+    place-items: center;
+    border-radius: var(--app-radius-sm);
+    background: linear-gradient(135deg, var(--app-accent-deep), var(--app-accent));
+    color: #05110b;
+    font-weight: 700;
+
+    img {
+      width: 100%;
+      height: 100%;
+      border-radius: var(--app-radius-sm);
+      object-fit: cover;
+    }
+  }
+
+  &__delete {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+  }
+}
+</style>

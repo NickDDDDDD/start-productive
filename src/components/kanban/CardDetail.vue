@@ -283,7 +283,6 @@ watch(
           Add Comment
         </a-button>
       </section>
-
     </div>
 
     <template #footer>
@@ -303,3 +302,190 @@ watch(
     </template>
   </a-modal>
 </template>
+
+<style scoped lang="less">
+.card-detail {
+  display: flex;
+  max-height: calc(88vh - 150px);
+  flex-direction: column;
+  gap: 18px;
+  overflow-y: auto;
+  color: var(--app-text);
+  padding-right: 4px;
+}
+
+:global(.card-detail-modal .arco-modal-body) {
+  max-height: calc(88vh - 120px);
+  overflow: hidden;
+}
+
+.detail-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  h3 {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    color: var(--app-text-soft);
+    font-size: 14px;
+    font-weight: 600;
+
+    svg {
+      color: var(--app-muted);
+    }
+  }
+}
+
+.detail-textarea {
+  min-height: 140px;
+
+  :deep(textarea) {
+    resize: none;
+  }
+}
+
+.checklist,
+.comments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.checklist-item {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: center;
+}
+
+.comments-list article {
+  border-radius: var(--app-radius-sm);
+  border: 1px solid var(--app-panel-border);
+  background: rgba(237, 239, 242, 0.05);
+  padding: 10px;
+
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: var(--app-muted);
+    font-size: 12px;
+  }
+
+  p {
+    margin: 8px 0 0;
+    white-space: pre-wrap;
+  }
+}
+
+.detail-fields {
+  width: 100%;
+
+  :deep(.arco-checkbox),
+  :deep(.arco-checkbox-label) {
+    color: var(--app-text-soft);
+  }
+}
+
+.detail-fields__grid {
+  display: grid;
+  width: 100%;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px 16px;
+}
+
+.detail-fields__control {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.detail-fields__label {
+  color: var(--app-muted);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.detail-fields__important {
+  grid-column: 1 / -1;
+}
+
+.detail-fields__schedule {
+  grid-column: 1;
+}
+
+.detail-fields__workload {
+  grid-column: 2;
+}
+
+.detail-fields__schedule > :not(.detail-fields__label) {
+  width: 100%;
+  min-width: 0;
+}
+
+.workload-row {
+  display: flex;
+  gap: 8px;
+}
+
+.detail-fields__workload .workload-row > * {
+  min-width: 0;
+  flex: 1 1 0;
+}
+
+:deep(.arco-checkbox-icon-hover::before),
+:deep(.arco-checkbox:hover .arco-checkbox-icon-hover::before),
+:deep(.arco-checkbox > input[type="checkbox"]:focus-visible + .arco-checkbox-icon-hover::before) {
+  background-color: transparent;
+}
+
+:deep(.arco-checkbox-icon) {
+  border-color: var(--app-panel-border-strong);
+  border-radius: var(--app-radius-xs);
+  background-color: var(--app-overlay-l1);
+}
+
+:deep(.arco-checkbox:hover .arco-checkbox-icon) {
+  border-color: var(--app-accent);
+}
+
+:deep(.arco-checkbox-checked .arco-checkbox-icon),
+:deep(.arco-checkbox-indeterminate .arco-checkbox-icon) {
+  border-color: var(--app-accent);
+  background-color: var(--app-accent);
+}
+
+:deep(.arco-checkbox-checked .arco-checkbox-icon-check),
+:deep(.arco-checkbox-indeterminate .arco-checkbox-icon-check) {
+  color: #04130b;
+}
+
+.inline-create {
+  display: flex;
+  gap: 8px;
+}
+
+.comment-input {
+  :deep(textarea) {
+    resize: none;
+  }
+}
+
+.card-detail__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  width: 100%;
+}
+
+.card-detail__footer-actions {
+  display: flex;
+  gap: 8px;
+}
+</style>

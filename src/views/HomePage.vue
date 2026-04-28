@@ -143,3 +143,189 @@ const searchStyle = computed(() => ({
     </nav>
   </main>
 </template>
+
+<style scoped lang="less">
+.home-page {
+  position: relative;
+  display: flex;
+  width: 100%;
+  height: 100dvh;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.top-bar {
+  display: flex;
+  flex: 0 0 auto;
+
+  &__search {
+    min-width: 0;
+
+    .search-bar {
+      width: 100%;
+    }
+  }
+}
+
+.brand-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-width: 0;
+  overflow: hidden;
+  border-radius: var(--app-radius-pill);
+  color: var(--app-text);
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background 0.15s ease;
+
+  &:hover {
+    background: var(--app-panel-bg-strong);
+  }
+
+  &__icon {
+    color: var(--app-accent-strong);
+    font-size: 28px;
+  }
+}
+
+.workspace {
+  display: flex;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.workspace-panel,
+.kanban-shell {
+  min-width: 0;
+  height: 100%;
+  overflow: hidden;
+  transition:
+    flex-grow 0.25s ease,
+    opacity 0.2s ease,
+    margin 0.25s ease;
+}
+
+.kanban-shell {
+  border-radius: var(--app-radius-md);
+  border: 1px solid var(--app-panel-border);
+  background: var(--app-panel-bg);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.035),
+    0 16px 36px rgba(0, 0, 0, 0.22);
+  backdrop-filter: blur(18px);
+  padding: 16px;
+  overflow-x: auto;
+}
+
+.kanban-board {
+  display: flex;
+  width: 100%;
+  min-width: 100%;
+  height: 100%;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.kanban-columns {
+  display: flex;
+  width: max-content;
+  height: 100%;
+  gap: 16px;
+
+  > .drag-ghost {
+    border-color: transparent;
+    background: transparent;
+    outline: 2px solid var(--app-accent-strong);
+    outline-offset: -2px;
+    box-shadow: none;
+
+    > * {
+      visibility: hidden;
+    }
+  }
+}
+
+.section-toggle {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  display: flex;
+  gap: 6px;
+  border-radius: var(--app-radius-md);
+  border: 1px solid var(--app-panel-border);
+  background: rgba(12, 12, 13, 0.86);
+  padding: 6px;
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.34);
+  backdrop-filter: blur(18px);
+  transform: translateX(-50%);
+
+  &__item {
+    width: 10px;
+    min-width: 10px;
+    height: 10px;
+    overflow: hidden;
+    border: 1px solid transparent;
+    border-radius: var(--app-radius-xs);
+    background: var(--app-overlay-l2);
+    color: var(--app-text);
+    cursor: pointer;
+    padding: 0;
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1;
+    white-space: nowrap;
+    transition:
+      width 0.18s ease,
+      min-width 0.18s ease,
+      height 0.18s ease,
+      padding 0.18s ease,
+      background 0.18s ease,
+      border-color 0.18s ease;
+
+    span {
+      opacity: 0;
+      transition: opacity 0.12s ease;
+    }
+
+    &:hover {
+      background: var(--app-overlay-l2);
+      border-color: var(--app-panel-border-strong);
+      color: var(--app-text);
+    }
+
+    &:disabled {
+      cursor: default;
+    }
+  }
+
+  &__item--active {
+    background: var(--app-accent);
+    border-color: var(--app-accent);
+    color: #04130b;
+
+    &:hover {
+      background: var(--app-accent-strong);
+      border-color: var(--app-accent-strong);
+      color: #04130b;
+    }
+  }
+
+  &:hover &__item,
+  &:focus-within &__item {
+    width: auto;
+    min-width: 72px;
+    height: 30px;
+    padding: 0 12px;
+
+    span {
+      opacity: 1;
+    }
+  }
+}
+</style>

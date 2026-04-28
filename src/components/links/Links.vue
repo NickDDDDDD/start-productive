@@ -94,3 +94,55 @@ function addLink() {
     </Draggable>
   </section>
 </template>
+
+<style scoped lang="less">
+.links-panel {
+  display: flex;
+  height: 100%;
+  min-height: 0;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.link-form {
+  border: 1px solid var(--app-panel-border);
+  border-radius: var(--app-radius-sm);
+  background: transparent;
+  padding: 0;
+}
+
+.link-modal__footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  width: 100%;
+}
+
+.links-list {
+  display: flex;
+  min-height: 0;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 8px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+  }
+
+  > .drag-ghost {
+    border-color: transparent;
+    background: transparent;
+    outline: 2px solid var(--app-accent-strong);
+    outline-offset: -2px;
+    box-shadow: none;
+
+    > * {
+      visibility: hidden;
+    }
+  }
+}
+</style>

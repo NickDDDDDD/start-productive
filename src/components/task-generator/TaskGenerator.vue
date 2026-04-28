@@ -128,3 +128,30 @@ async function createToInbox() {
     </template>
   </section>
 </template>
+
+<style scoped lang="less">
+.task-generator {
+  display: flex;
+  height: 100%;
+  min-height: 0;
+  flex-direction: column;
+  gap: 12px;
+  border-radius: var(--app-radius-md);
+  border: 1px solid var(--app-panel-border);
+  background: var(--app-panel-bg);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.035),
+    0 16px 36px rgba(0, 0, 0, 0.22);
+  backdrop-filter: blur(18px);
+  padding: 16px;
+}
+
+.task-generator__input {
+  flex: 1 1 auto;
+  min-height: 320px;
+
+  :deep(textarea) {
+    resize: none;
+  }
+}
+</style>

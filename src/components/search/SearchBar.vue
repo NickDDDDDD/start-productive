@@ -19,3 +19,9 @@ const { searchTerm } = storeToRefs(board);
     </template>
   </a-input>
 </template>
+
+<style scoped lang="less">
+.search-bar {
+  border-radius: var(--app-radius-pill);
+}
+</style>
