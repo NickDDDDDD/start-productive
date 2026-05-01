@@ -208,8 +208,7 @@ export async function downloadBoardWorkbook(state) {
 export async function parseBoardWorkbook(file) {
   const ExcelJS = await getExcelJS();
   const workbook = new ExcelJS.Workbook();
-  const buffer =
-    file instanceof ArrayBuffer ? file : await file.arrayBuffer();
+  const buffer = await readWorkbookBuffer(file);
   await workbook.xlsx.load(buffer);
 
   const errors = [];
@@ -351,6 +350,17 @@ export async function parseBoardWorkbook(file) {
       links: state.links.length,
     },
   };
+}
+
+async function readWorkbookBuffer(file) {
+  if (file instanceof ArrayBuffer) return file;
+  if (ArrayBuffer.isView(file)) {
+    return file.buffer.slice(
+      file.byteOffset,
+      file.byteOffset + file.byteLength,
+    );
+  }
+  return file.arrayBuffer();
 }
 
 function countMerge(currentItems, importedItems) {
