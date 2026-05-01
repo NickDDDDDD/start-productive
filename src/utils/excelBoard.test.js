@@ -6,13 +6,15 @@ import {
 } from "./excelBoard";
 
 const boardState = {
-  columns: [{ id: "todo", title: "Todo" }],
+  columns: [{ id: "todo", title: "Todo", isCompletion: true }],
   cards: [
     {
       id: "card-1",
       columnId: "todo",
       title: "Ship import",
       description: "Roundtrip through Excel",
+      completed: true,
+      completedAt: "2026-05-01T08:00:00.000Z",
       important: true,
       dueDate: "2026-05-01",
       dueTime: "10:15",
@@ -47,10 +49,17 @@ describe("excelBoard", () => {
       comments: 1,
       links: 1,
     });
+    expect(parsed.state.columns[0]).toMatchObject({
+      id: "todo",
+      title: "Todo",
+      isCompletion: true,
+    });
     expect(parsed.state.cards[0]).toMatchObject({
       id: "card-1",
       columnId: "todo",
       title: "Ship import",
+      completed: true,
+      completedAt: "2026-05-01T08:00:00.000Z",
       important: true,
       dueDate: "2026-05-01",
       dueTime: "10:15",
@@ -63,6 +72,32 @@ describe("excelBoard", () => {
     expect(parsed.state.cards[0].comments[0]).toMatchObject({
       id: "comment-1",
       text: "Keep the note",
+    });
+  });
+
+  it("defaults imported columns without isCompletion to normal columns", async () => {
+    const module = await import("exceljs");
+    const ExcelJS = module.default || module;
+    const workbook = new ExcelJS.Workbook();
+    const columnsSheet = workbook.addWorksheet("Columns");
+    columnsSheet.columns = ["id", "title", "order"].map((key) => ({
+      header: key,
+      key,
+    }));
+    columnsSheet.addRow({ id: "todo", title: "Todo", order: 0 });
+    const cardsSheet = workbook.addWorksheet("Cards");
+    cardsSheet.columns = ["id", "columnId", "title", "order"].map((key) => ({
+      header: key,
+      key,
+    }));
+
+    const parsed = await parseBoardWorkbook(await workbook.xlsx.writeBuffer());
+
+    expect(parsed.errors).toEqual([]);
+    expect(parsed.state.columns[0]).toMatchObject({
+      id: "todo",
+      title: "Todo",
+      isCompletion: false,
     });
   });
 

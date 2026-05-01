@@ -9,9 +9,9 @@ export const DEFAULT_VISIBLE_SECTIONS = {
 
 export const createDefaultState = () => ({
   columns: [
-    { id: "todo", title: "Todo" },
-    { id: "doing", title: "Doing" },
-    { id: "done", title: "Done" },
+    { id: "todo", title: "Todo", isCompletion: false },
+    { id: "doing", title: "Doing", isCompletion: false },
+    { id: "done", title: "Done", isCompletion: true },
   ],
   cards: [],
   links: [],
@@ -64,6 +64,7 @@ export function normalizeColumn(column = {}) {
   return {
     id: asString(column.id) || nanoid(),
     title: asString(column.title).trim() || "Untitled",
+    isCompletion: Boolean(column.isCompletion),
   };
 }
 
@@ -91,6 +92,8 @@ export function normalizeCard(card = {}) {
     description: asString(card.description, DEFAULT_CARD_META.description),
     checklistItems: normalizeChecklistItems(card.checklistItems),
     comments: normalizeComments(card.comments),
+    completed: Boolean(card.completed),
+    completedAt: card.completed ? asString(card.completedAt) : "",
     important: Boolean(card.important),
     dueDate: asString(card.dueDate),
     dueTime: card.dueDate ? asString(card.dueTime) : "",

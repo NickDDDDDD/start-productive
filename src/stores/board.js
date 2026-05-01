@@ -33,6 +33,25 @@ function nextCard(payload, columnId) {
   };
 }
 
+function syncCardCompletionForColumn(card, column, completedAt) {
+  const isCompletionColumn = Boolean(column?.isCompletion);
+  if (isCompletionColumn) {
+    return {
+      ...card,
+      completed: true,
+      completedAt: card.completedAt || completedAt,
+    };
+  }
+
+  return card.completed
+    ? {
+        ...card,
+        completed: false,
+        completedAt: "",
+      }
+    : card;
+}
+
 export const useBoardStore = defineStore("board", {
   state: () => ({
     ...createDefaultState(),
@@ -136,12 +155,28 @@ export const useBoardStore = defineStore("board", {
       this.columns.push({
         id: nanoid(),
         title: `Column ${this.columns.length + 1}`,
+        isCompletion: false,
       });
     },
 
     updateColumn(id, title) {
       const column = this.columns.find((item) => item.id === id);
       if (column) column.title = title;
+    },
+
+    toggleColumnCompletion(id, enabled) {
+      const column = this.columns.find((item) => item.id === id);
+      if (!column) return;
+
+      const nextIsCompletion =
+        typeof enabled === "boolean" ? enabled : !column.isCompletion;
+      const completedAt = new Date().toISOString();
+      column.isCompletion = nextIsCompletion;
+      this.cards = this.cards.map((card) =>
+        card.columnId === id
+          ? syncCardCompletionForColumn(card, column, completedAt)
+          : card,
+      );
     },
 
     deleteColumn(id) {
@@ -169,13 +204,26 @@ export const useBoardStore = defineStore("board", {
       Object.assign(card, typeof patch === "string" ? { title: patch } : patch);
     },
 
+    toggleCardCompleted(id, completed) {
+      const card = this.cards.find((item) => item.id === id);
+      if (!card) return;
+      const nextCompleted =
+        typeof completed === "boolean" ? completed : !card.completed;
+      card.completed = nextCompleted;
+      card.completedAt = nextCompleted ? new Date().toISOString() : "";
+    },
+
     deleteCard(id) {
       this.cards = this.cards.filter((card) => card.id !== id);
     },
 
     replaceCardsInColumn(columnId, nextCards) {
+      const targetColumn = this.columns.find((column) => column.id === columnId);
+      const completedAt = new Date().toISOString();
       const idsInColumn = new Set(nextCards.map((card) => card.id));
-      const normalized = nextCards.map((card) => ({ ...card, columnId }));
+      const normalized = nextCards.map((card) =>
+        syncCardCompletionForColumn({ ...card, columnId }, targetColumn, completedAt),
+      );
       const nextState = [];
       let inserted = false;
 

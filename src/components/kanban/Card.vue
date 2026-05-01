@@ -38,6 +38,17 @@ const dueLabel = computed(() => {
     priority.value.dueTime ? ` ${priority.value.dueTime}` : ""
   }`;
 });
+const completedLabel = computed(() => {
+  if (!props.card.completedAt) return "Completed";
+  const date = new Date(props.card.completedAt);
+  if (Number.isNaN(date.getTime())) return "Completed";
+  return `Completed ${date.toLocaleString([], {
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  })}`;
+});
 const urgencyLabel = computed(() => {
   if (priority.value.key === "unplanned") return "Unplanned";
   return priority.value.urgent ? "Urgent" : "Not urgent";
@@ -45,6 +56,10 @@ const urgencyLabel = computed(() => {
 const importanceLabel = computed(() =>
   priority.value.important ? "Important" : "Not important",
 );
+
+function toggleCompleted() {
+  board.toggleCardCompleted(props.card.id);
+}
 </script>
 
 <template>
@@ -62,14 +77,49 @@ const importanceLabel = computed(() =>
       @keyup.enter="detailOpen = true"
       @keyup.space.prevent="detailOpen = true"
     >
-      <p>{{ card.title }}</p>
+      <div class="task-card__title-row no-drag">
+        <p :class="{ 'task-card__title--completed': card.completed }">
+          {{ card.title }}
+        </p>
+        <div class="task-card__actions">
+          <a-dropdown trigger="click" position="rt">
+            <a-button
+              class="task-card__menu menu-trigger"
+              shape="circle"
+              size="mini"
+              @click.stop
+            >
+              <IconMore />
+            </a-button>
+            <template #content>
+              <a-doption @click="detailOpen = true">
+                <template #icon><IconEdit /></template>
+                Edit
+              </a-doption>
+              <a-doption @click="toggleCompleted">
+                <template #icon><IconCheckSquare /></template>
+                {{ card.completed ? "Mark incomplete" : "Mark complete" }}
+              </a-doption>
+              <a-doption class="danger-option" @click="board.deleteCard(card.id)">
+                <template #icon><IconDelete /></template>
+                Delete
+              </a-doption>
+            </template>
+          </a-dropdown>
+        </div>
+      </div>
       <div class="task-card__badges">
-        <a-tag size="small">{{ importanceLabel }}</a-tag>
-        <a-tag size="small">{{ urgencyLabel }}</a-tag>
-        <a-tag size="small"><IconCalendar /> {{ dueLabel }}</a-tag>
-        <a-tag size="small">
-          {{ priority.workloadAmount }}{{ priority.workloadUnit === "days" ? "d" : "h" }}
+        <a-tag v-if="card.completed" size="small">
+          <IconCheckSquare /> {{ completedLabel }}
         </a-tag>
+        <template v-else>
+          <a-tag size="small">{{ importanceLabel }}</a-tag>
+          <a-tag size="small">{{ urgencyLabel }}</a-tag>
+          <a-tag size="small"><IconCalendar /> {{ dueLabel }}</a-tag>
+          <a-tag size="small">
+            {{ priority.workloadAmount }}{{ priority.workloadUnit === "days" ? "d" : "h" }}
+          </a-tag>
+        </template>
       </div>
       <footer class="task-card__meta">
         <div class="task-card__meta-left">
@@ -88,27 +138,6 @@ const importanceLabel = computed(() =>
         </span>
       </footer>
     </div>
-
-    <a-dropdown trigger="click" position="rt">
-      <a-button
-        class="task-card__menu menu-trigger no-drag"
-        shape="circle"
-        size="mini"
-        @click.stop
-      >
-        <IconMore />
-      </a-button>
-      <template #content>
-        <a-doption @click="detailOpen = true">
-          <template #icon><IconEdit /></template>
-          Edit
-        </a-doption>
-        <a-doption class="danger-option" @click="board.deleteCard(card.id)">
-          <template #icon><IconDelete /></template>
-          Delete
-        </a-doption>
-      </template>
-    </a-dropdown>
 
     <CardDetail v-model:visible="detailOpen" :card="card" />
   </DraggableCard>
@@ -146,6 +175,7 @@ const importanceLabel = computed(() =>
     }
 
     p {
+      min-width: 0;
       max-height: 44px;
       margin: 0;
       overflow: auto;
@@ -155,6 +185,36 @@ const importanceLabel = computed(() =>
       white-space: pre-wrap;
       word-break: break-word;
     }
+  }
+
+  &__title-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 6px;
+    align-items: start;
+  }
+
+  &__actions {
+    display: inline-flex;
+    gap: 4px;
+  }
+
+  &__title--completed {
+    color: var(--app-muted);
+    text-decoration: line-through;
+  }
+
+  &__menu {
+    width: 24px;
+    min-width: 24px;
+    height: 24px;
+    opacity: 0;
+  }
+
+  &:hover &__menu,
+  &__menu:focus-visible,
+  &__menu.arco-dropdown-open {
+    opacity: 1;
   }
 
   &__badges {
@@ -193,21 +253,6 @@ const importanceLabel = computed(() =>
     white-space: nowrap;
   }
 
-  &__menu {
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    opacity: 0;
-    transition:
-      opacity 0.14s ease,
-      background 0.14s ease,
-      border-color 0.14s ease;
-  }
-
-  &:hover &__menu,
-  &__menu.arco-dropdown-open {
-    opacity: 1;
-  }
 }
 
 .task-card--importantUrgent {

@@ -58,4 +58,23 @@ describe("cardPriority timing", () => {
       ),
     ).toEqual(new Date(2026, 4, 1, 8, 0, 0, 0));
   });
+
+  it("treats completed cards as completed instead of urgent", () => {
+    expect(
+      getCardPriority(
+        { ...dueCard, completed: true, completedAt: "2026-05-01T08:00:00.000Z" },
+        new Date(2026, 4, 1, 9, 0),
+      ),
+    ).toMatchObject({
+      key: "completed",
+      label: "Completed",
+      urgent: false,
+    });
+    expect(
+      getCardUrgencyChangeAt(
+        { ...dueCard, completed: true },
+        new Date(2026, 4, 1, 7, 0),
+      ),
+    ).toBeNull();
+  });
 });

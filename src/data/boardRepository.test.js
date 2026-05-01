@@ -98,7 +98,9 @@ describe("boardRepository", () => {
       db.backups.toArray(),
     ]);
 
-    expect(state.columns).toEqual([{ id: "done", title: "Done" }]);
+    expect(state.columns).toEqual([
+      { id: "done", title: "Done", isCompletion: false },
+    ]);
     expect(backups).toHaveLength(1);
     expect(backups[0].reason).toBe("excel-import-replace");
     expect(backups[0].counts).toEqual({ columns: 2, cards: 1, links: 1 });

@@ -29,6 +29,8 @@ const draft = reactive({
   description: "",
   checklistItems: [],
   comments: [],
+  completed: false,
+  completedAt: "",
   important: false,
   dueDate: "",
   dueTime: "",
@@ -82,6 +84,11 @@ function resetDraft() {
       : DEFAULT_CARD_META.description;
   draft.checklistItems = normalizeChecklistItems(source.checklistItems);
   draft.comments = normalizeComments(source.comments);
+  draft.completed = Boolean(source.completed);
+  draft.completedAt =
+    source.completed && typeof source.completedAt === "string"
+      ? source.completedAt
+      : "";
   draft.important = meta.important;
   draft.dueDate = meta.dueDate;
   draft.dueTime = meta.dueTime;
@@ -118,6 +125,10 @@ function buildCardPayload() {
         createdAt: comment.createdAt || new Date().toISOString(),
       }))
       .filter((comment) => comment.text),
+    completed: Boolean(draft.completed),
+    completedAt: draft.completed
+      ? draft.completedAt || new Date().toISOString()
+      : "",
     important: Boolean(draft.important),
     dueDate: draft.dueDate || "",
     dueTime: draft.dueDate ? draft.dueTime || "" : "",
@@ -191,6 +202,29 @@ function formatCommentTime(value) {
   });
 }
 
+function formatCompletedTime(value) {
+  if (!value) return "";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+  return date.toLocaleString([], {
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
+watch(
+  () => draft.completed,
+  (completed) => {
+    if (completed && !draft.completedAt) {
+      draft.completedAt = new Date().toISOString();
+      return;
+    }
+    if (!completed) draft.completedAt = "";
+  },
+);
+
 watch(
   () => props.visible,
   (visible, previousVisible) => {
@@ -224,6 +258,13 @@ onBeforeUnmount(() => {
     <div class="card-detail">
       <a-input v-model="draft.title" size="large" placeholder="Card title" />
 
+      <section class="detail-section detail-completion">
+        <a-checkbox v-model="draft.completed">Completed</a-checkbox>
+        <span v-if="draft.completedAt">
+          {{ formatCompletedTime(draft.completedAt) }}
+        </span>
+      </section>
+
       <section class="detail-section">
         <h3><IconEdit /> Description</h3>
         <a-textarea
@@ -256,7 +297,7 @@ onBeforeUnmount(() => {
             />
           </div>
           <div class="detail-fields__control detail-fields__workload">
-            <span class="detail-fields__label">Workload</span>
+            <span class="detail-fields__label">Workload remaining</span>
             <div class="workload-row">
               <div
                 class="workload-amount"

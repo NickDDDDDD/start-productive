@@ -1,4 +1,6 @@
 export const DEFAULT_CARD_META = {
+  completed: false,
+  completedAt: "",
   important: false,
   dueDate: "",
   dueTime: "",
@@ -35,6 +37,8 @@ export function normalizeCardMeta(card) {
   const workloadHours = safeWorkloadAmount * WORKLOAD_UNIT_HOURS[workloadUnit];
 
   return {
+    completed: Boolean(card?.completed),
+    completedAt: typeof card?.completedAt === "string" ? card.completedAt : "",
     important: Boolean(card?.important),
     dueDate: typeof card?.dueDate === "string" ? card.dueDate : "",
     dueTime: typeof card?.dueTime === "string" ? card.dueTime : "",
@@ -68,6 +72,7 @@ export function getDueAt(dueDate, dueTime) {
 
 export function getCardUrgencyChangeAt(card, now = new Date()) {
   const meta = normalizeCardMeta(card);
+  if (meta.completed) return null;
   const dueAt = getDueAt(meta.dueDate, meta.dueTime);
   if (!dueAt) return null;
 
@@ -96,6 +101,17 @@ export function getNextPriorityChangeAt(cards = [], now = new Date()) {
 
 export function getCardPriority(card, now = new Date()) {
   const meta = normalizeCardMeta(card);
+  if (meta.completed) {
+    return {
+      ...meta,
+      key: "completed",
+      label: "Completed",
+      urgent: false,
+      remainingDays: null,
+      remainingHours: null,
+    };
+  }
+
   const dueAt = getDueAt(meta.dueDate, meta.dueTime);
 
   if (!dueAt) {
@@ -167,6 +183,11 @@ export const CARD_PRIORITY_STYLES = {
     badge: "bg-emerald-100 text-emerald-700 ring-emerald-200",
   },
   unplanned: {
+    card: "border-stone-300 bg-stone-300/40",
+    stripe: "bg-stone-500",
+    badge: "bg-stone-200 text-stone-700 ring-stone-300",
+  },
+  completed: {
     card: "border-stone-300 bg-stone-300/40",
     stripe: "bg-stone-500",
     badge: "bg-stone-200 text-stone-700 ring-stone-300",

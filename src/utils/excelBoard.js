@@ -111,6 +111,7 @@ export async function createBoardWorkbookBuffer(state) {
   const columnsSheet = addSheet(workbook, SHEETS.columns, [
     "id",
     "title",
+    "isCompletion",
     "order",
   ]);
   normalized.columns.forEach((column, order) => {
@@ -122,6 +123,8 @@ export async function createBoardWorkbookBuffer(state) {
     "columnId",
     "title",
     "description",
+    "completed",
+    "completedAt",
     "important",
     "dueDate",
     "dueTime",
@@ -151,6 +154,8 @@ export async function createBoardWorkbookBuffer(state) {
       columnId: card.columnId,
       title: card.title,
       description: card.description,
+      completed: card.completed,
+      completedAt: card.completedAt,
       important: card.important,
       dueDate: card.dueDate,
       dueTime: card.dueTime,
@@ -223,6 +228,7 @@ export async function parseBoardWorkbook(file) {
     columnRows.map((row) => ({
       id: cellText(row.id) || nanoid(),
       title: cellText(row.title) || "Untitled",
+      isCompletion: cellBoolean(row.isCompletion),
       order: cellNumber(row.order, row.rowNumber),
     })),
   ).map(withoutOrder);
@@ -233,6 +239,8 @@ export async function parseBoardWorkbook(file) {
       columnId: cellText(row.columnId) || "inbox",
       title: cellText(row.title) || "Untitled",
       description: cellText(row.description),
+      completed: cellBoolean(row.completed),
+      completedAt: cellText(row.completedAt),
       important: cellBoolean(row.important),
       dueDate: cellText(row.dueDate).slice(0, 10),
       dueTime: cellText(row.dueTime).slice(0, 5),

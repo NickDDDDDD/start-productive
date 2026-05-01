@@ -2,6 +2,7 @@
 import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 import Draggable from "vuedraggable";
 import {
+  IconCheckSquare,
   IconDelete,
   IconMore,
   IconPlus,
@@ -83,11 +84,23 @@ function createCard() {
         @keyup.esc="cancelTitleEdit"
       />
       <h2 v-else class="no-drag" @click="startTitleEdit">{{ column.title }}</h2>
+      <span v-if="column.isCompletion" class="completion-badge no-drag">
+        <IconCheckSquare />
+        Completed
+      </span>
       <a-dropdown trigger="click" position="rt">
         <a-button class="menu-trigger no-drag" shape="circle" size="mini" @click.stop>
           <IconMore />
         </a-button>
         <template #content>
+          <a-doption @click="board.toggleColumnCompletion(column.id)">
+            <template #icon><IconCheckSquare /></template>
+            {{
+              column.isCompletion
+                ? "Unmark completion column"
+                : "Mark completion column"
+            }}
+          </a-doption>
           <a-doption class="danger-option" @click="board.deleteColumn(column.id)">
             <template #icon><IconDelete /></template>
             Delete
@@ -184,6 +197,25 @@ function createCard() {
   font-size: 12px;
   font-weight: 700;
   line-height: 1;
+}
+
+.completion-badge {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 4px;
+  border: 1px solid rgba(50, 240, 140, 0.26);
+  border-radius: var(--app-radius-xs);
+  background: rgba(50, 240, 140, 0.1);
+  color: var(--app-accent);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+  padding: 4px 6px;
+
+  svg {
+    font-size: 12px;
+  }
 }
 
 .card-list {
