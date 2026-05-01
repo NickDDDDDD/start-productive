@@ -151,20 +151,16 @@ export const useBoardStore = defineStore("board", {
 
     createCard(columnId, payload) {
       const card = nextCard(payload, columnId);
-      if (columnId === "inbox") {
-        const inboxCards = this.cards.filter((item) => item.columnId === "inbox");
-        const otherCards = this.cards.filter((item) => item.columnId !== "inbox");
-        this.cards = [card, ...inboxCards, ...otherCards];
-        return;
-      }
-      this.cards.push(card);
+      this.replaceCardsInColumn(columnId, [
+        ...this.cards.filter((item) => item.columnId === columnId),
+        card,
+      ]);
     },
 
     createCardsInInbox(titles) {
       const newCards = titles.map((title) => nextCard(title, "inbox"));
       const inboxCards = this.cards.filter((item) => item.columnId === "inbox");
-      const otherCards = this.cards.filter((item) => item.columnId !== "inbox");
-      this.cards = [...newCards, ...inboxCards, ...otherCards];
+      this.replaceCardsInColumn("inbox", [...inboxCards, ...newCards]);
     },
 
     updateCard(id, patch) {
@@ -180,18 +176,26 @@ export const useBoardStore = defineStore("board", {
     replaceCardsInColumn(columnId, nextCards) {
       const idsInColumn = new Set(nextCards.map((card) => card.id));
       const normalized = nextCards.map((card) => ({ ...card, columnId }));
-      const otherCards = this.cards.filter((card) => {
-        return card.columnId !== columnId && !idsInColumn.has(card.id);
+      const nextState = [];
+      let inserted = false;
+
+      this.cards.forEach((card) => {
+        const belongsToTargetColumn = card.columnId === columnId;
+        const movedIntoTargetColumn = idsInColumn.has(card.id);
+
+        if (belongsToTargetColumn || movedIntoTargetColumn) {
+          if (!inserted) {
+            nextState.push(...normalized);
+            inserted = true;
+          }
+          return;
+        }
+
+        nextState.push(card);
       });
 
-      if (columnId === "inbox") {
-        this.cards = [...normalized, ...otherCards];
-        return;
-      }
-
-      const before = otherCards.filter((card) => card.columnId === "inbox");
-      const after = otherCards.filter((card) => card.columnId !== "inbox");
-      this.cards = [...before, ...normalized, ...after];
+      if (!inserted) nextState.push(...normalized);
+      this.cards = nextState;
     },
 
     createLink(payload) {

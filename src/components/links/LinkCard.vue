@@ -119,7 +119,6 @@ watch(
     height: 40px;
     place-items: center;
     border-radius: var(--app-radius-sm);
-    background: linear-gradient(135deg, var(--app-accent-deep), var(--app-accent));
     color: #05110b;
     font-weight: 700;
 
@@ -128,6 +127,15 @@ watch(
       height: 100%;
       border-radius: var(--app-radius-sm);
       object-fit: cover;
+    }
+
+    span {
+      display: grid;
+      width: 100%;
+      height: 100%;
+      place-items: center;
+      border-radius: var(--app-radius-sm);
+      background: linear-gradient(135deg, var(--app-accent-deep), var(--app-accent));
     }
   }
 
