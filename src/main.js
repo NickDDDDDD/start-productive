@@ -1,8 +1,11 @@
 import { createApp } from "vue";
 import { createPinia } from "pinia";
-import ArcoVue from "@arco-design/web-vue";
-import "@arco-design/web-vue/dist/arco.css";
 import App from "./App.vue";
+import { installArcoComponents } from "./plugins/arco";
 import "./styles/main.less";
 
-createApp(App).use(createPinia()).use(ArcoVue).mount("#root");
+const app = createApp(App);
+
+app.use(createPinia());
+installArcoComponents(app);
+app.mount("#root");

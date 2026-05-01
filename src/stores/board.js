@@ -13,25 +13,11 @@ import {
   saveBoardState,
   subscribeBoardState,
 } from "../data/boardRepository";
-import { DEFAULT_CARD_META } from "../utils/cardPriority";
+import { createCard as createCardEntity } from "../utils/cardFactory";
 
 let persistenceStarted = false;
 let saveTimer = null;
 let applyingExternalState = false;
-
-function nextCard(payload, columnId) {
-  const patch =
-    typeof payload === "string" ? { title: payload } : payload && typeof payload === "object" ? payload : {};
-  const title = typeof patch.title === "string" ? patch.title.trim() : "";
-
-  return {
-    id: nanoid(),
-    ...DEFAULT_CARD_META,
-    ...patch,
-    columnId,
-    title: title || "Untitled",
-  };
-}
 
 function syncCardCompletionForColumn(card, column, completedAt) {
   const isCompletionColumn = Boolean(column?.isCompletion);
@@ -185,7 +171,7 @@ export const useBoardStore = defineStore("board", {
     },
 
     createCard(columnId, payload) {
-      const card = nextCard(payload, columnId);
+      const card = createCardEntity(payload, columnId);
       this.replaceCardsInColumn(columnId, [
         ...this.cards.filter((item) => item.columnId === columnId),
         card,
@@ -193,7 +179,7 @@ export const useBoardStore = defineStore("board", {
     },
 
     createCardsInInbox(titles) {
-      const newCards = titles.map((title) => nextCard(title, "inbox"));
+      const newCards = titles.map((title) => createCardEntity(title, "inbox"));
       const inboxCards = this.cards.filter((item) => item.columnId === "inbox");
       this.replaceCardsInColumn("inbox", [...inboxCards, ...newCards]);
     },

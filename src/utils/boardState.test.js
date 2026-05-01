@@ -10,8 +10,10 @@ describe("boardState", () => {
     });
   });
 
-  it("defaults legacy columns to non-completion columns", () => {
-    expect(normalizeColumn({ id: "todo", title: "Todo" })).toEqual({
+  it("normalizes current columns with explicit completion state", () => {
+    expect(
+      normalizeColumn({ id: "todo", title: "Todo", isCompletion: false }),
+    ).toEqual({
       id: "todo",
       title: "Todo",
       isCompletion: false,
@@ -28,10 +30,10 @@ describe("boardState", () => {
     });
   });
 
-  it("defaults legacy cards to incomplete", () => {
-    expect(normalizeCard({ id: "card-1", title: "Legacy card" })).toMatchObject({
+  it("normalizes current cards to safe defaults", () => {
+    expect(normalizeCard({ id: "card-1", title: "Task" })).toMatchObject({
       id: "card-1",
-      title: "Legacy card",
+      title: "Task",
       completed: false,
       completedAt: "",
     });

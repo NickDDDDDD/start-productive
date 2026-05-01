@@ -3,8 +3,11 @@ import { computed, ref } from "vue";
 import { IconRefresh, IconRobot } from "@arco-design/web-vue/es/icon";
 import { useBoardStore } from "../../stores/board";
 import { usePromptSession } from "../../composables/usePromptSession";
+import { createLogger } from "../../utils/logger";
+import { buildTaskPrompt, safeParseTaskJSON } from "../../utils/taskPrompt";
 
 const board = useBoardStore();
+const logger = createLogger("task-generator");
 const input = ref("");
 const creating = ref(false);
 
@@ -29,43 +32,18 @@ const statusType = computed(() => {
   return "danger";
 });
 
-const buildJSONPrompt = (value) =>
-  `
-You are PersonalKanbanizer. From INPUT extract only actionable personal tasks; be concise but keep facts (links/numbers/names).
-Return ONLY JSON (no prose):
-{"tasks":[{"title":"","status":"inbox|todo|doing|waiting|done|someday","due_date":null,"tags":[],"note":""}]}
-Rules: titles imperative <=80 chars; keep INPUT language; waiting/blocked->waiting, WIP->doing, finished->done, future/nice-to-have->someday, else->todo; explicit dates->YYYY-MM-DD (Australia/Melbourne), relative dates->keep in note; do not invent unknowns. If none, return {"tasks":[]}.
-
-INPUT:
-${value}
-`.trim();
-
-function safeParseJSON(text) {
-  try {
-    const cleaned = String(text)
-      .replace(/^[\s`]*```(?:json)?/i, "")
-      .replace(/```[\s`]*$/i, "")
-      .trim();
-    const start = cleaned.indexOf("{");
-    const end = cleaned.lastIndexOf("}");
-    return JSON.parse(start >= 0 && end >= 0 ? cleaned.slice(start, end + 1) : cleaned);
-  } catch {
-    return null;
-  }
-}
-
 async function createToInbox() {
   if (!ready.value) return;
   creating.value = true;
   try {
-    const aiText = await prompt(buildJSONPrompt(input.value));
-    const data = safeParseJSON(aiText);
+    const aiText = await prompt(buildTaskPrompt(input.value));
+    const data = safeParseTaskJSON(aiText);
     const titles = Array.isArray(data?.tasks)
       ? data.tasks.map((task) => task?.title).filter(Boolean)
       : [];
     if (titles.length) board.createCardsInInbox(titles);
   } catch (err) {
-    console.error(err);
+    logger.error("task generation failed", err);
   } finally {
     creating.value = false;
   }

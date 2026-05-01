@@ -11,8 +11,8 @@ import {
 
 const customState = {
   columns: [
-    { id: "todo", title: "Todo" },
-    { id: "doing", title: "Doing" },
+    { id: "todo", title: "Todo", isCompletion: false },
+    { id: "doing", title: "Doing", isCompletion: false },
   ],
   cards: [
     {
@@ -85,7 +85,7 @@ describe("boardRepository", () => {
 
     await replaceBoardState(
       {
-        columns: [{ id: "done", title: "Done" }],
+        columns: [{ id: "done", title: "Done", isCompletion: true }],
         cards: [],
         links: [],
         visibleSections: { links: false, taskGenerator: false, inbox: false },
@@ -99,7 +99,7 @@ describe("boardRepository", () => {
     ]);
 
     expect(state.columns).toEqual([
-      { id: "done", title: "Done", isCompletion: false },
+      { id: "done", title: "Done", isCompletion: true },
     ]);
     expect(backups).toHaveLength(1);
     expect(backups[0].reason).toBe("excel-import-replace");
@@ -111,8 +111,8 @@ describe("boardRepository", () => {
 
     await mergeBoardState({
       columns: [
-        { id: "todo", title: "Updated Todo" },
-        { id: "done", title: "Done" },
+        { id: "todo", title: "Updated Todo", isCompletion: false },
+        { id: "done", title: "Done", isCompletion: true },
       ],
       cards: [
         { id: "card-1", columnId: "todo", title: "Updated card" },

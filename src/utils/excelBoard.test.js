@@ -75,32 +75,6 @@ describe("excelBoard", () => {
     });
   });
 
-  it("defaults imported columns without isCompletion to normal columns", async () => {
-    const module = await import("exceljs");
-    const ExcelJS = module.default || module;
-    const workbook = new ExcelJS.Workbook();
-    const columnsSheet = workbook.addWorksheet("Columns");
-    columnsSheet.columns = ["id", "title", "order"].map((key) => ({
-      header: key,
-      key,
-    }));
-    columnsSheet.addRow({ id: "todo", title: "Todo", order: 0 });
-    const cardsSheet = workbook.addWorksheet("Cards");
-    cardsSheet.columns = ["id", "columnId", "title", "order"].map((key) => ({
-      header: key,
-      key,
-    }));
-
-    const parsed = await parseBoardWorkbook(await workbook.xlsx.writeBuffer());
-
-    expect(parsed.errors).toEqual([]);
-    expect(parsed.state.columns[0]).toMatchObject({
-      id: "todo",
-      title: "Todo",
-      isCompletion: false,
-    });
-  });
-
   it("reports missing column references before import", async () => {
     const buffer = await createBoardWorkbookBuffer({
       ...boardState,

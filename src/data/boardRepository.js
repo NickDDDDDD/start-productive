@@ -5,9 +5,11 @@ import {
   normalizeState,
   toPlainState,
 } from "../utils/boardState";
+import { createLogger } from "../utils/logger";
 
 const SETTINGS_VISIBLE_SECTIONS = "visibleSections";
 const META_INITIALIZED = "initialized";
+const logger = createLogger("board-repository");
 
 export const db = new Dexie("start-productive");
 
@@ -18,6 +20,16 @@ db.version(1).stores({
   settings: "key",
   backups: "id, createdAt",
   meta: "key",
+});
+
+db.version(2).stores({
+  columns: "id, order",
+  cards: "id, columnId, order, dueDate, important",
+  links: "id, order",
+  settings: "key",
+  backups: "id, createdAt",
+  meta: "key",
+  favicons: "key, host, brand, exp",
 });
 
 function withOrder(items) {
@@ -203,7 +215,7 @@ export async function mergeBoardState(importedState) {
 export function subscribeBoardState(handler) {
   const subscription = liveQuery(loadBoardState).subscribe({
     next: handler,
-    error: (error) => console.error("[boardRepository] liveQuery failed", error),
+    error: (error) => logger.error("liveQuery failed", error),
   });
 
   return () => subscription.unsubscribe();

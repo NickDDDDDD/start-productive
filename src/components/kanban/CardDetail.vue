@@ -10,10 +10,11 @@ import {
 import { nanoid } from "nanoid";
 import { useBoardStore } from "../../stores/board";
 import {
-  DEFAULT_CARD_META,
-  WORKLOAD_UNIT_HOURS,
-  normalizeCardMeta,
-} from "../../utils/cardPriority";
+  MIN_WORKLOAD_AMOUNT,
+  WORKLOAD_STEP,
+  buildCardPayload,
+  createCardDraft,
+} from "../../utils/cardDraft";
 
 const props = defineProps({
   card: { type: Object, default: null },
@@ -24,23 +25,9 @@ const props = defineProps({
 const emit = defineEmits(["update:visible"]);
 const board = useBoardStore();
 
-const draft = reactive({
-  title: "",
-  description: "",
-  checklistItems: [],
-  comments: [],
-  completed: false,
-  completedAt: "",
-  important: false,
-  dueDate: "",
-  dueTime: "",
-  workloadAmount: 1,
-  workloadUnit: "hours",
-});
+const draft = reactive(createCardDraft());
 const newChecklistText = ref("");
 const newCommentText = ref("");
-const WORKLOAD_STEP = 0.25;
-const MIN_WORKLOAD_AMOUNT = 0.25;
 const workloadMotion = ref("");
 let workloadMotionTimer = null;
 
@@ -53,47 +40,8 @@ const drawerTitle = computed(() =>
   isCreating.value ? "Create Card" : "Card Details",
 );
 
-function normalizeChecklistItems(items) {
-  if (!Array.isArray(items)) return [];
-  return items.map((item) => ({
-    id: item?.id || nanoid(),
-    text: typeof item?.text === "string" ? item.text : "",
-    done: Boolean(item?.done),
-  }));
-}
-
-function normalizeComments(comments) {
-  if (!Array.isArray(comments)) return [];
-  return comments.map((comment) => ({
-    id: comment?.id || nanoid(),
-    text: typeof comment?.text === "string" ? comment.text : "",
-    createdAt:
-      typeof comment?.createdAt === "string"
-        ? comment.createdAt
-        : new Date().toISOString(),
-  }));
-}
-
 function resetDraft() {
-  const source = props.card || {};
-  const meta = normalizeCardMeta(source);
-  draft.title = source.title || "";
-  draft.description =
-    typeof source.description === "string"
-      ? source.description
-      : DEFAULT_CARD_META.description;
-  draft.checklistItems = normalizeChecklistItems(source.checklistItems);
-  draft.comments = normalizeComments(source.comments);
-  draft.completed = Boolean(source.completed);
-  draft.completedAt =
-    source.completed && typeof source.completedAt === "string"
-      ? source.completedAt
-      : "";
-  draft.important = meta.important;
-  draft.dueDate = meta.dueDate;
-  draft.dueTime = meta.dueTime;
-  draft.workloadAmount = meta.workloadAmount;
-  draft.workloadUnit = meta.workloadUnit;
+  Object.assign(draft, createCardDraft(props.card));
   newChecklistText.value = "";
   newCommentText.value = "";
 }
@@ -102,44 +50,8 @@ function close() {
   isOpen.value = false;
 }
 
-function buildCardPayload() {
-  const workloadAmount = Number(draft.workloadAmount);
-  const workloadUnit = draft.workloadUnit === "days" ? "days" : "hours";
-  const safeWorkloadAmount =
-    Number.isFinite(workloadAmount) && workloadAmount > 0 ? workloadAmount : 1;
-
-  return {
-    title: draft.title.trim() || "Untitled",
-    description: draft.description,
-    checklistItems: draft.checklistItems
-      .map((item) => ({
-        id: item.id || nanoid(),
-        text: item.text.trim(),
-        done: Boolean(item.done),
-      }))
-      .filter((item) => item.text),
-    comments: draft.comments
-      .map((comment) => ({
-        id: comment.id || nanoid(),
-        text: comment.text.trim(),
-        createdAt: comment.createdAt || new Date().toISOString(),
-      }))
-      .filter((comment) => comment.text),
-    completed: Boolean(draft.completed),
-    completedAt: draft.completed
-      ? draft.completedAt || new Date().toISOString()
-      : "",
-    important: Boolean(draft.important),
-    dueDate: draft.dueDate || "",
-    dueTime: draft.dueDate ? draft.dueTime || "" : "",
-    workloadAmount: safeWorkloadAmount,
-    workloadUnit,
-    workloadHours: safeWorkloadAmount * WORKLOAD_UNIT_HOURS[workloadUnit],
-  };
-}
-
 function save() {
-  const payload = buildCardPayload();
+  const payload = buildCardPayload(draft);
   if (props.card?.id) {
     board.updateCard(props.card.id, payload);
   } else {
@@ -150,7 +62,7 @@ function save() {
 
 function handleWorkloadWheel(event) {
   const current = Number(draft.workloadAmount);
-  const base = Number.isFinite(current) ? current : DEFAULT_CARD_META.workloadAmount;
+  const base = Number.isFinite(current) ? current : 1;
   const direction = event.deltaY < 0 ? 1 : -1;
   const nextValue = Math.max(
     MIN_WORKLOAD_AMOUNT,

@@ -54,7 +54,10 @@ watch(isEdit, (editing) => {
       v-model:popup-visible="isAdding"
       trigger="click"
       position="rt"
+      class="link-create-popover-trigger"
+      popup-container="body"
       content-class="link-create-popover"
+      arrow-class="link-create-popover__arrow"
       @popup-visible-change="setAddingVisible"
     >
       <a-button type="primary" long class="no-drag">
@@ -135,14 +138,31 @@ watch(isEdit, (editing) => {
   width: 100%;
 }
 
+:global(.link-create-popover.arco-popover-popup-content),
 :global(.link-create-popover) {
-  border: 1px solid var(--app-panel-border);
-  border-radius: var(--app-radius-md);
-  background: rgba(17, 18, 20, 0.98);
+  border: 1px solid var(--app-panel-border) !important;
+  border-radius: var(--app-radius-md) !important;
+  background: rgba(17, 18, 20, 0.98) !important;
+  color: var(--app-text) !important;
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.035),
-    0 18px 42px rgba(0, 0, 0, 0.34);
+    0 18px 42px rgba(0, 0, 0, 0.34) !important;
   backdrop-filter: blur(18px);
+}
+
+:global(.link-create-popover .arco-popover-content) {
+  background: transparent !important;
+  color: var(--app-text) !important;
+}
+
+:global(.link-create-popover .arco-form-item-label-col > label),
+:global(.link-create-popover .arco-form-item-label) {
+  color: var(--app-text-soft) !important;
+}
+
+:global(.link-create-popover__arrow) {
+  background: rgba(17, 18, 20, 0.98) !important;
+  border-color: var(--app-panel-border) !important;
 }
 
 .links-list {

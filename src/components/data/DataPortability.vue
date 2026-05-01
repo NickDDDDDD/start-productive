@@ -1,6 +1,6 @@
 <script setup>
 import { computed, ref } from "vue";
-import { Message } from "@arco-design/web-vue";
+import Message from "@arco-design/web-vue/es/message";
 import {
   IconDownload,
   IconImport,
@@ -13,8 +13,10 @@ import {
   downloadBoardWorkbook,
   parseBoardWorkbook,
 } from "../../utils/excelBoard";
+import { createLogger } from "../../utils/logger";
 
 const board = useBoardStore();
+const logger = createLogger("import-export");
 const fileInputRef = ref(null);
 const parsing = ref(false);
 const importing = ref(false);
@@ -26,6 +28,16 @@ const importFileName = ref("");
 const hasErrors = computed(() => Boolean(parsedImport.value?.errors.length));
 const preview = computed(() => parsedImport.value?.preview);
 const summary = computed(() => parsedImport.value?.summary);
+const importStrategies = {
+  merge: {
+    successMessage: "Data merged.",
+    apply: (state) => board.mergeImportedState(state),
+  },
+  replace: {
+    successMessage: "Data replaced.",
+    apply: (state) => board.replaceImportedState(state),
+  },
+};
 
 function chooseFile() {
   fileInputRef.value?.click();
@@ -37,7 +49,7 @@ async function exportExcel() {
     await downloadBoardWorkbook(board.toPortableState());
     Message.success("Excel exported.");
   } catch (error) {
-    console.error(error);
+    logger.error("export failed", error);
     Message.error("Export failed.");
   } finally {
     exporting.value = false;
@@ -59,7 +71,7 @@ async function parseExcel(event) {
     };
     previewVisible.value = true;
   } catch (error) {
-    console.error(error);
+    logger.error("parse failed", error);
     Message.error("Could not read this Excel file.");
   } finally {
     parsing.value = false;
@@ -67,19 +79,16 @@ async function parseExcel(event) {
 }
 
 async function applyImport(mode) {
-  if (!parsedImport.value || hasErrors.value) return;
+  const strategy = importStrategies[mode];
+  if (!strategy || !parsedImport.value || hasErrors.value) return;
   importing.value = true;
   try {
-    if (mode === "replace") {
-      await board.replaceImportedState(parsedImport.value.state);
-    } else {
-      await board.mergeImportedState(parsedImport.value.state);
-    }
+    await strategy.apply(parsedImport.value.state);
     previewVisible.value = false;
     parsedImport.value = null;
-    Message.success(mode === "replace" ? "Data replaced." : "Data merged.");
+    Message.success(strategy.successMessage);
   } catch (error) {
-    console.error(error);
+    logger.error("import failed", error);
     Message.error("Import failed. No data was changed.");
   } finally {
     importing.value = false;

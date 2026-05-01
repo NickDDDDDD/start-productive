@@ -4,6 +4,6 @@
   "version": "1.0.0",
   "description": "Use Start Productive as the new tab page.",
   "chrome_url_overrides": { "newtab": "index.html" },
-  "permissions": ["storage", "tabs"],
+  "permissions": ["tabs"],
   "host_permissions": ["<all_urls>"]
 }

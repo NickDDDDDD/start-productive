@@ -1,9 +1,10 @@
 <script setup>
-import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
+import { computed, nextTick, onMounted, watch } from "vue";
 import { storeToRefs } from "pinia";
 import Draggable from "vuedraggable";
 import { IconPlus, IconThunderbolt } from "@arco-design/web-vue/es/icon";
 import { useBoardStore } from "../stores/board";
+import { useKanbanLayout } from "../composables/useKanbanLayout";
 import SearchBar from "../components/search/SearchBar.vue";
 import DataPortability from "../components/data/DataPortability.vue";
 import Links from "../components/links/Links.vue";
@@ -13,26 +14,20 @@ import Column from "../components/kanban/Column.vue";
 
 const board = useBoardStore();
 const { columns, visibleSections } = storeToRefs(board);
-const kanbanShellRef = ref(null);
-const kanbanBoardRef = ref(null);
-const kanbanTrackRef = ref(null);
-const isDraggingColumn = ref(false);
-const isShiftingKanbanLayout = ref(false);
-const closedTrackOffset = ref(0);
-let kanbanResizeObserver = null;
-let kanbanLayoutTimer = null;
+const {
+  kanbanShellRef,
+  kanbanBoardRef,
+  kanbanTrackRef,
+  isDraggingColumn,
+  isShiftingKanbanLayout,
+  kanbanTrackStyle,
+  updateClosedTrackOffset,
+  startKanbanLayoutShift,
+  scrollKanbanToEnd,
+} = useKanbanLayout();
 
 onMounted(() => {
   board.initPersistence();
-  kanbanResizeObserver = new ResizeObserver(updateClosedTrackOffset);
-  if (kanbanBoardRef.value) kanbanResizeObserver.observe(kanbanBoardRef.value);
-  if (kanbanTrackRef.value) kanbanResizeObserver.observe(kanbanTrackRef.value);
-  nextTick(updateClosedTrackOffset);
-});
-
-onBeforeUnmount(() => {
-  kanbanResizeObserver?.disconnect();
-  window.clearTimeout(kanbanLayoutTimer);
 });
 
 const kanbanStyle = computed(() => ({
@@ -64,24 +59,9 @@ const searchStyle = computed(() => ({
   flexBasis: `${(visibleSections.value.taskGenerator ? 16 : 0) + (visibleSections.value.inbox ? 280 : 0)}px`,
 }));
 
-const kanbanTrackStyle = computed(() => ({
-  marginLeft: board.cardDrawerOpen ? "0px" : `${closedTrackOffset.value}px`,
-}));
-
-function updateClosedTrackOffset() {
-  const boardWidth = kanbanBoardRef.value?.clientWidth || 0;
-  const trackWidth = kanbanTrackRef.value?.scrollWidth || 0;
-  closedTrackOffset.value = Math.max(0, (boardWidth - trackWidth) / 2);
-}
-
-function startKanbanLayoutShift() {
-  if (isDraggingColumn.value) return;
-  window.clearTimeout(kanbanLayoutTimer);
-  isShiftingKanbanLayout.value = true;
-  kanbanLayoutTimer = window.setTimeout(() => {
-    isShiftingKanbanLayout.value = false;
-  }, 260);
-}
+const visibleKanbanTrackStyle = computed(() =>
+  board.cardDrawerOpen ? { marginLeft: "0px" } : kanbanTrackStyle.value,
+);
 
 function createColumn() {
   startKanbanLayoutShift();
@@ -89,17 +69,6 @@ function createColumn() {
   nextTick(() => {
     updateClosedTrackOffset();
     scrollKanbanToEnd();
-  });
-}
-
-function scrollKanbanToEnd() {
-  requestAnimationFrame(() => {
-    const shell = kanbanShellRef.value;
-    if (!shell || shell.scrollWidth <= shell.clientWidth) return;
-    shell.scrollTo({
-      left: shell.scrollWidth - shell.clientWidth,
-      behavior: "smooth",
-    });
   });
 }
 
@@ -166,7 +135,7 @@ watch(
               'kanban-track--layout-shifting': isShiftingKanbanLayout,
               'kanban-track--dragging': isDraggingColumn,
             }"
-            :style="kanbanTrackStyle"
+            :style="visibleKanbanTrackStyle"
           >
             <Draggable
               v-model="columns"
