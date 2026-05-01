@@ -8,8 +8,9 @@ import {
   IconMessage,
   IconMore,
 } from "@arco-design/web-vue/es/icon";
-import { CARD_PRIORITY_STYLES, getCardPriority } from "../../utils/cardPriority";
+import { CARD_PRIORITY_STYLES } from "../../utils/cardPriority";
 import { useBoardStore } from "../../stores/board";
+import { useBoardPriorities } from "../../composables/useBoardPriorities";
 import DraggableCard from "../common/DraggableCard.vue";
 import CardDetail from "./CardDetail.vue";
 
@@ -18,8 +19,9 @@ const props = defineProps({
 });
 
 const board = useBoardStore();
+const { getPriority } = useBoardPriorities();
 const detailOpen = ref(false);
-const priority = computed(() => getCardPriority(props.card));
+const priority = computed(() => getPriority(props.card));
 const priorityStyle = computed(() => CARD_PRIORITY_STYLES[priority.value.key]);
 const checklistItems = computed(() =>
   Array.isArray(props.card.checklistItems) ? props.card.checklistItems : [],

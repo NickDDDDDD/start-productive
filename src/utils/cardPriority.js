@@ -1,5 +1,3 @@
-export const URGENCY_WORKLOAD_BUFFER = 1.25;
-
 export const DEFAULT_CARD_META = {
   important: false,
   dueDate: "",
@@ -46,7 +44,7 @@ export function normalizeCardMeta(card) {
   };
 }
 
-function getDueAt(dueDate, dueTime) {
+export function getDueAt(dueDate, dueTime) {
   if (!dueDate) return null;
   const [year, month, day] = dueDate.split("-").map(Number);
   if (!year || !month || !day) return null;
@@ -54,8 +52,46 @@ function getDueAt(dueDate, dueTime) {
   const [hours = 23, minutes = 59] = dueTime
     ? dueTime.split(":").map(Number)
     : [];
-  const dueAt = new Date(year, month - 1, day, hours, minutes, 59, 999);
+  const seconds = dueTime ? 0 : 59;
+  const milliseconds = dueTime ? 0 : 999;
+  const dueAt = new Date(
+    year,
+    month - 1,
+    day,
+    hours,
+    minutes,
+    seconds,
+    milliseconds,
+  );
   return Number.isNaN(dueAt.getTime()) ? null : dueAt;
+}
+
+export function getCardUrgencyChangeAt(card, now = new Date()) {
+  const meta = normalizeCardMeta(card);
+  const dueAt = getDueAt(meta.dueDate, meta.dueTime);
+  if (!dueAt) return null;
+
+  const workloadHours =
+    meta.workloadUnit === "days"
+      ? meta.workloadAmount * HOURS_PER_DAY
+      : meta.workloadAmount;
+  const thresholdMs = dueAt.getTime() - workloadHours * MS_PER_HOUR;
+  if (thresholdMs <= now.getTime()) return null;
+
+  return new Date(thresholdMs);
+}
+
+export function getNextPriorityChangeAt(cards = [], now = new Date()) {
+  if (!Array.isArray(cards)) return null;
+
+  return cards.reduce((nextChangeAt, card) => {
+    const changeAt = getCardUrgencyChangeAt(card, now);
+    if (!changeAt) return nextChangeAt;
+    if (!nextChangeAt || changeAt.getTime() < nextChangeAt.getTime()) {
+      return changeAt;
+    }
+    return nextChangeAt;
+  }, null);
 }
 
 export function getCardPriority(card, now = new Date()) {
@@ -85,7 +121,7 @@ export function getCardPriority(card, now = new Date()) {
       : remainingHours;
   const urgent =
     isOverdue ||
-    meta.workloadAmount * URGENCY_WORKLOAD_BUFFER >= remainingWorkloadUnits;
+    meta.workloadAmount >= remainingWorkloadUnits;
 
   let key = "notImportantNotUrgent";
   if (meta.important && urgent) key = "importantUrgent";
